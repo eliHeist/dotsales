@@ -22,8 +22,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 INTERNAL_IPS = env.list('INTERNAL_IPS')
 
 # CORS: Requires django-cors-headers
-# CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
 
 
 # Application definition
@@ -35,12 +34,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    'ninja_extra',
+    'ninja_jwt',
+    "corsheaders",
 ]
 INSTALLED_APPS += getAppNames()
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+
+    "corsheaders.middleware.CorsMiddleware",
+
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -107,11 +113,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
+TIME_ZONE = "Africa/Kampala"
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -137,6 +140,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'dotsales/assets/media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+AUTH_USER_MODEL = 'users.User'
 
 # Email settings
 EMAIL_BACKEND = env('EMAIL_BACKEND')
@@ -147,3 +151,30 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 TO_EMAILS = env.list('TO_EMAILS')
+
+
+USE_AZURE = env('USE_AZURE')
+
+if not DEBUG and USE_AZURE:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.azure_storage.AzureStorage",
+            "OPTIONS": {
+                "connection_string": env("AZURE_CONNECTION_STRING"),
+                "account_name": env("AZURE_ACCOUNT_NAME"),
+                "account_key": env("AZURE_ACCOUNT_KEY"),
+                "azure_container": env("AZURE_MEDIA_CONTAINER"),
+                "expiration_secs": int(env("AZURE_URL_EXPIRATION_SECS")),
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "storages.backends.azure_storage.AzureStorage",
+            "OPTIONS": {
+                "connection_string": env("AZURE_CONNECTION_STRING"),
+                "account_name": env("AZURE_ACCOUNT_NAME"),
+                "account_key": env("AZURE_ACCOUNT_KEY"),
+                "azure_container": env("AZURE_STATIC_CONTAINER"),
+            },
+        },
+    }
+
