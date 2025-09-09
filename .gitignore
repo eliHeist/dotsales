@@ -10,3 +10,4 @@ wheels/
 .venv
 .env
 dotsales/.env
+db.sqlite3
