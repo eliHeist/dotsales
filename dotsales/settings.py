@@ -24,6 +24,7 @@ INTERNAL_IPS = env.list('INTERNAL_IPS')
 # CORS: Requires django-cors-headers
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
 
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
