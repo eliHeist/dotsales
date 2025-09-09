@@ -12,7 +12,7 @@ from ninja_extra import api_controller, http_post, http_get, http_put
 from ninja_extra.permissions import IsAuthenticated
 
 # from .models import Branch
-from .schemas import LoginSchema, _user_payload
+from .schemas import LoginResponseSchema, LoginSchema, UserOutAuthedSchema
 
 User = get_user_model()
 
@@ -24,13 +24,12 @@ class AuthController:
     #     user = request.user
     #     return user
     
-    @http_post("/login", response={200: dict, 401: dict, 403: dict})
+    @http_post("/login", response={200: LoginResponseSchema, 401: dict, 403: dict})
     def login(self, request, data: LoginSchema):
         """
         Login. Returns access token and user profile.
         Refresh token is set in an httpOnly cookie.
         """
-        print(data)
         user = authenticate(request, email=data.email, password=data.password)
         if not user:
             return {"detail": "Invalid credentials"}, 401
@@ -43,7 +42,7 @@ class AuthController:
         access = str(refresh.access_token)
         refresh_str = str(refresh)
 
-        payload = {"access": access, "user": _user_payload(user)}
+        payload = {"access": access, "user": UserOutAuthedSchema.from_orm(user).dict()}
 
         # cookie lifetime from settings.NINJA_JWT if present
         max_age = None
@@ -81,6 +80,6 @@ class AuthController:
         except Exception:
             return Response({"detail": "Invalid refresh token"}, status=401)
 
-        return {"access": access, "user": _user_payload(user)}
+        return {"access": access, "user": UserOutAuthedSchema.from_orm(user).dict()}
 
 

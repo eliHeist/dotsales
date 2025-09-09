@@ -17,9 +17,8 @@ class CompanyUserInline(admin.StackedInline):
         self.parent_obj = obj
         return super().get_formset(request, obj, **kwargs)
 
-
+@admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    inlines = [CompanyUserInline]
+    # inlines = [CompanyUserInline]
     list_display = ("name", "contact", "address")
 
-admin.site.register(Company, CompanyAdmin)
