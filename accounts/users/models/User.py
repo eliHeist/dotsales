@@ -43,7 +43,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password):
+    def create_superuser(self, email, password, username=None):
         """Creates an admin user object
         Arguments:
         username: the string to use as username
@@ -53,7 +53,7 @@ class UserManager(BaseUserManager):
         Return:
             A user object
         """
-        user = self.create_user(username, email, password=password)
+        user = self.create_user(email, password=password, username=username)
         user.is_admin=True
         user.is_superuser=True
         user.save(using=self._db)
@@ -61,15 +61,16 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, unique=True)
-    email = models.EmailField(verbose_name='Email address', max_length=255,unique=True)
-    is_active = models.BooleanField(default=True)
+    email = models.EmailField(verbose_name='Email address', max_length=255, unique=True)
+    username = models.CharField(max_length=255, unique=True, null=True, blank=True)
+
     is_admin = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     objects = UserManager()
 
