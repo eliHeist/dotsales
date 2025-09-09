@@ -1,6 +1,6 @@
-from ninja import NinjaAPI
+from ninja_extra import NinjaExtraAPI
 
-api = NinjaAPI()
+api = NinjaExtraAPI()
 
 
 @api.get("/add")
