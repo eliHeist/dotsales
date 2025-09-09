@@ -69,6 +69,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    company = models.ForeignKey("companies.Company", on_delete=models.CASCADE, related_name="users", null=True, blank=True)
+    accessible_branches = models.ManyToManyField("companies.Branch", blank=True, related_name="users_with_access")
+
+    is_company_admin = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
