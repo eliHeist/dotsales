@@ -39,6 +39,10 @@ INSTALLED_APPS = [
     'ninja_extra',
     'ninja_jwt',
     "corsheaders",
+
+    "django_unicorn",
+    "django_cotton",
+    "widget_tweaks",
 ]
 INSTALLED_APPS += getAppNames()
 
@@ -68,6 +72,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+
+                "accounts.users.context_processors.user_company",
             ],
         },
     },

@@ -57,7 +57,7 @@ class AuthController:
             secure=not settings.DEBUG,
             samesite="Lax",
             max_age=max_age,
-            path="/api/auth/refresh/",
+            path="/auth/refresh/",
         )
         return resp
     
