@@ -15,7 +15,7 @@
                             {% csrf_token %}
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Name *</legend>
-                                <input type="text" class="input w-full" name="name" required />
+                                <input type="text" class="input w-full" name="branch_name" required />
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Email</legend>
@@ -47,12 +47,51 @@
         </div>
     </header>
     
-    {% for branch in branches %}
-    <div class="card bg-base-100">
-        <div class="card-body">
-            <div class="card-title">{{ branch.name }}</div>
-            <p>{{ branch.location }}</p>
+    <div class="grid gap-4 mt-4 md:grid-cols-2">
+        {% for branch in branches %}
+        <div class="card bg-base-100">
+            <div class="card-body relative">
+                <div class="card-title">{{ branch.name }}</div>
+                <p>{{ branch.email }}</p>
+
+                <button class="btn" onclick="my_modal_{{ branch.id }}.showModal()">Edit</button>
+                <dialog id="my_modal_{{ branch.id }}" class="modal">
+                    <div class="modal-box">
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="pk" value="{{ branch.pk }}">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Name *</legend>
+                                <input type="text" value="{% if branch.name %}{{ branch.name }}{% endif %}" class="input w-full" name="branch_name" required />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Email</legend>
+                                <input type="email" value="{% if branch.email %}{{ branch.email }}{% endif %}" class="input w-full" name="email" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Phone</legend>
+                                <input type="tel" value="{% if branch.phone_1 %}{{ branch.phone_1 }}{% endif %}" class="input w-full" name="phone_1" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Other Phone</legend>
+                                <input type="tel" value="{% if branch.phone_2 %}{{ branch.phone_2 }}{% endif %}" class="input w-full" name="phone_2" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Location</legend>
+                                <input type="text" value="{% if branch.location %}{{ branch.location }}{% endif %}" class="input w-full" name="name" />
+                            </fieldset>
+                            <div class="modal-action">
+                                <!-- if there is a button in form, it will close the modal -->
+                                <button class="btn btn-primary">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog>
+            </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </c-layout>

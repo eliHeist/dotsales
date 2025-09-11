@@ -16,16 +16,28 @@ class LandingPageView(LoginRequiredMixin, View):
         
         company = user.company
 
-        name = data.get("name")
+        pk = data.get("pk")
+        name = data.get("branch_name")
         location = data.get("location")
         email = data.get("email")
         phone_1 = data.get("phone_1")
         phone_2 = data.get("phone_2")
 
-        Branch.objects.create(
-            company=company,
-            name=name,
-            location=location
-        )
+        print(name)
+
+        if pk:
+            branch = Branch.objects.get(pk=pk)
+            branch.name = name
+            branch.location = location
+            branch.email = email
+            branch.phone_1 = phone_1
+            branch.phone_2 = phone_2
+            branch.save()
+        else:
+            Branch.objects.create(
+                company=company,
+                name=name,
+                location=location
+            )
 
         return self.get(request, *args, **kwargs)

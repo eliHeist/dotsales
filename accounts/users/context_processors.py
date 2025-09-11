@@ -8,4 +8,5 @@ def user_company(request):
         branches = company.branches.all()
     else:
         branches = request.user.accessible_branches.all()
+    print(branches)
     return {'company': company, 'branches': branches}
