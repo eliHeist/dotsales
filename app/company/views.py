@@ -23,8 +23,6 @@ class LandingPageView(LoginRequiredMixin, View):
         phone_1 = data.get("phone_1")
         phone_2 = data.get("phone_2")
 
-        print(name)
-
         if pk:
             branch = Branch.objects.get(pk=pk)
             branch.name = name
