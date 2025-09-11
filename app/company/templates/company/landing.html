@@ -56,11 +56,11 @@
                 <div class="card-title">{{ branch.name }}</div>
                 <p>{{ branch.email }}</p>
 
-                <div class="flex gap-2">
+                <div class="flex gap-4">
                     {% if ADMIN_MODE %}
                     <button class="btn" onclick="my_modal_{{ branch.id }}.showModal()">Edit</button>
                     {% endif %}
-                    <a class="link" onclick="">View</a>
+                    <a class="btn btn-neutral" href="{% url 'branches:landing' branch.id %}">View</a>
                 </div>
                 <dialog id="my_modal_{{ branch.id }}" class="modal">
                     <div class="modal-box">

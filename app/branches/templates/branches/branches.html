@@ -1,0 +1,23 @@
+
+<c-layout2>
+    <header class="bg-base-100 rounded-box p-4">
+        <span class="badge badge-accent badge-xs uppercase">Branch</span>
+        <h1 class="text-xl font-semibold mb-2">{{ branch.name }}</h1>
+        <div class="flex justify-between">
+            <div class="flex gap-4 flex-wrap">
+                {% if branch.email %}
+                <p class="badge badge-sm">{{ branch.email }}</p>
+                {% endif %}
+                {% if branch.phone_1 %}
+                <p class="badge badge-sm">{{ branch.phone_1 }}</p>
+                {% endif %}
+                {% if branch.phone_2 %}
+                <p class="badge badge-sm">{{ branch.phone_2 }}</p>
+                {% endif %}
+                {% if branch.location %}
+                <p class="badge badge-sm">{{ branch.location }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+</c-layout2>

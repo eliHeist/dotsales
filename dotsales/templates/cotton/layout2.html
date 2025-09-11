@@ -1,8 +1,146 @@
-<c-base title="{{ title }}">
-    <div class="flex flex-col">
-        {% comment %}<!-- navbar -->{% endcomment %}
-        <c-components.header2 />
+{% load static %}
 
-        {{ slot }}
-    </div>
+<c-base title="{{ title }}">
+	<div
+		class="flex h-screen bg-base-100"
+		x-data="{
+            pdf_loading: false,
+            global_loading: false,
+            error: '',
+            show_sidebar: true,
+            async handlePDF() {
+                this.pdf_loading = true;
+                this.error = '';
+
+                const result = await window.generatePDF();
+
+                this.pdf_loading = false;
+
+                if (result !== 0) {
+                    this.error = result;
+                    setTimeout(() => this.error = '', 5000);
+                }
+            }
+        }">
+		<div class="">
+			<div
+				x-cloak
+				x-show="global_loading"
+				class="fixed inset-0 grid place-content-center text-center gap-2 text-primary bg-base-100/70 z-50">
+				<span class="loading loading-infinity loading-xl"></span>
+			</div>
+
+			<div
+				id="full-htmx-loader"
+				class="htmx-indicator fixed inset-0 grid place-content-center text-center gap-2 text-primary bg-base-100/70 z-full">
+				<span class="loading loading-infinity loading-xl scale-200"></span>
+			</div>
+
+			<div
+				x-cloak
+				x-show="error"
+				x-transition
+				class="alert alert-error mt-4 fixed top-8 right-8">
+				<span x-text="error"></span>
+			</div>
+		</div>
+		<div class="h-screen grid" :class="{ 'md:hidden': !show_sidebar }">
+			<div class="h-screen w-64 flex flex-col">
+				<!-- Header -->
+				<div class="p-4 w-full">
+					<div class="flex items-center gap-2">
+						<div
+							class="aspect-square w-8 rounded-box bg-primary grid place-content-center font-semibold text-primary-content">
+							B
+						</div>
+						<div class="text-xs">
+							<h2 class="font-semibold">{{ company.name }}</h2>
+                            <p>{{ branch.name }}</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Scrollable Content -->
+				<div class="flex-1 overflow-y-auto py-2 space-y-4">
+					<div>
+						{% comment %} <h2 class="text-xs font-medium opacity-60 uppercase px-4">Landing</h2> {% endcomment %}
+						<ul class="menu w-full">
+							<li><a href="{% url 'branches:landing' branch.id %}">Landing</a></li>
+						</ul>
+					</div>
+					<div>
+						<h2 class="text-xs font-medium opacity-60 uppercase px-4">
+							Inventory
+						</h2>
+						<ul class="menu w-full">
+							<li><a href="{% url 'branches:landing' branch.id %}">Sales</a></li>
+							<li><a href="{% url 'branches:landing' branch.id %}">Products</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Footer -->
+				<div class="p-4 border-t border-base-300 text-sm text-base-content">
+					<div class="grid relative">
+						<div class="dropdown dropdown-top w-full">
+							<button
+								class="w-full bg-base-200 hover:bg-base-300 p-4 rounded-box transition-all cursor-pointer">
+								<div class="flex items-center space-x-2">
+									<div class="avatar avatar-placeholder">
+										<div
+											class="bg-secondary text-secondary-content w-8 rounded-full grid place-content-center">
+											<span class="text-xs"
+												>{{ request.user.profile.get_initials }}</span
+											>
+										</div>
+									</div>
+
+									<div class="grid flex-1">
+										<h2 class="font-semibold text-xs">
+											{{ request.user.profile.get_full_name }}
+										</h2>
+										<p class="text-xs opacity-60">
+											{{ request.user.email }}
+										</p>
+									</div>
+								</div>
+							</button>
+
+							<div
+								tabindex="0"
+								aria-label="Account options"
+								class="dropdown-content min-w-40 rounded-box bg-base-100 text-base-content shadow-sm">
+								<div class="p-4">
+									<div class="grid place-content-center text-center mb-4">
+										<p class="text-sm opacity-60">Confirm below to logout.</p>
+									</div>
+									<form action="{% url 'users:logout' %}" method="post">
+										{% csrf_token %}
+										<button class="btn btn-soft btn-error w-full">
+											Logout
+										</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="flex-1 flex flex-col p-1 relative" id="app-slot">
+			<button
+				type="button"
+				class="btn btn-square btn-sm text-lg btn-ghost absolute bottom-1 left-1 opacity-70"
+				@click="show_sidebar = !show_sidebar"
+				:title="show_sidebar ? 'Close sidebar' : 'Open sidebar'">
+				<span class="icon-panel-left-close" x-show="show_sidebar" x-cloak></span>
+				<span class="icon-panel-left-open" x-show="!show_sidebar" x-cloak></span>
+			</button>
+			<div
+				class="rounded-box bg-gradient-to-br from-[#F0F4F8] to-[#d6dadd] h-full w-full overflow-y-auto p-1 sm:p-2 md:p-4">
+				{{ slot }}
+			</div>
+		</div>
+	</div>
 </c-base>
