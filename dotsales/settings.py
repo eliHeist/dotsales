@@ -43,8 +43,14 @@ INSTALLED_APPS = [
     "django_unicorn",
     "django_cotton",
     "widget_tweaks",
+    "crispy_forms",
+    "crispy_tailwind",
 ]
 INSTALLED_APPS += getAppNames()
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+
+CRISPY_TEMPLATE_PACK = "tailwind"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -148,6 +154,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'dotsales/assets/media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'users.User'
+
+# auth config
+LOGIN_REDIRECT_URL = "company:landing"
+LOGOUT_REDIRECT_URL = 'users:login'
 
 # Email settings
 EMAIL_BACKEND = env('EMAIL_BACKEND')
