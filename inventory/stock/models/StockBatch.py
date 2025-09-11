@@ -26,3 +26,6 @@ class StockBatch(models.Model):
     def get_balance(self):
         return self.quantity - self.get_qty_sold()
     
+    def get_worth(self):
+        return int(self.quantity * self.selling_price)
+    

@@ -41,7 +41,7 @@ class ProductDetailView(LoginRequiredMixin, View):
         branch_product = branch.branch_products.get(pk=pk)
 
         stock_batches_count = branch_product.batches.count()
-        stock_batches = branch_product.batches.all().order_by('-date')[:10]
+        stock_batches = branch_product.batches.filter(active=True).all().order_by('-date')
 
         context = {
             'branch': branch,
