@@ -7,7 +7,7 @@ from .appsConfig import getAppUrls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", global_api.urls),
+    path("apis/", global_api.urls),
 
     path("unicorn/", include("django_unicorn.urls")),
 ]
