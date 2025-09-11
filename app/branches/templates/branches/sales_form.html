@@ -1,0 +1,84 @@
+
+<c-layout2>
+    <section x-data="{
+        products_data: {{ products_data|safe }},
+
+        sale: {
+            date: new Date().toISOString().split('T')[0],
+            sale_items: [],
+            payments: []
+        },
+
+        addToSale(id) {
+            const product = this.products_data.find(p => p.id == id)
+
+            if (!product) {
+                return
+            }
+            
+            this.sale.sale_items.push({
+                product_id: product.id,
+                batch_id: null,
+                quantity: 1,
+            })
+        },
+
+        init() {
+            console.log(this.products_data)
+        }
+    }" class="md:flex">
+
+        <aside class="grid bg-base-100 py-2 px-4 rounded-box">
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Date *</legend>
+                <input type="date" class="input w-full" name="date" x-model="sale.date" required />
+            </fieldset>
+
+            <div class="prods mt-4">
+                <ul class="list">
+                    <li class="py-2 opacity-60 text-xs">Products</li>
+                    <li class="pb-2">
+                        <input type="search" class="input w-full" placeholder="Search">
+                    </li>
+                    <template x-for="product in products_data">
+                        <li class="list-row -mx-4">
+                            <div class="list-col-grow">
+                                <div class="font-semibold" x-text="product.name"></div>
+                            </div>
+                            <div>
+                                <button class="btn btn-xs btn-square" @click="addToSale(product.id)">
+                                    <span class="text-xl">
+                                        &#43;
+                                    </span>
+                                </button>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </aside>
+
+        <div class="sale grid">
+            <div class="grid">
+                <template x-for="item in sale.sale_items">
+                    <div class="join">
+                        <select name="" id="" class="select join-item">
+                            <template x-for="product in products_data">
+                                <option :value="product.id" x-text="product.name"></option>
+                            </template>
+                        </select>
+                        <input type="number" class="input input-bordered join-item" x-model="item.quantity" />
+                        <div class="join-item grid place-content-center aspect-square">
+                            <span class="material-symbols-outlined">close_small</span>
+                        </div>
+                        <input type="number" class="input input-bordered join-item" x-model="item.price" />
+                        <button class="btn btn-error btn-square join-item" @click="sale.sale_items.splice(sale.sale_items.indexOf(item), 1)">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </section>
+</c-layout2>

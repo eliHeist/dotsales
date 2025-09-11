@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, date
+import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
@@ -113,3 +114,69 @@ class ProductDetailView(LoginRequiredMixin, View):
         batch.save()
 
         return self.get(request, bpk, pk)
+
+
+class SalesView(LoginRequiredMixin, View):
+    def get(self, request, bpk, *args, **kwargs):
+        data = request.GET
+        if data.get("fetch_form"):
+            return self.generate_sale_form(request, bpk, *args, **kwargs)
+
+        user = request.user
+        company = user.company
+        branch = company.branches.get(pk=bpk)
+
+        today = date.today()
+
+        sales = branch.sales.filter(date__year=today.year, date__month=today.month, date__day=today.day).all().order_by('-date')
+        total_amount = sum(sale.amount_paid for sale in sales)
+
+        context = {
+            'branch': branch,
+            'sales': sales,
+            'total_amount': int(total_amount)
+        }
+        
+        return render(request, 'branches/sales.html', context)
+    
+
+class SalesFormView(LoginRequiredMixin, View):
+    def get(self, request, bpk, *args, **kwargs):
+        user = request.user
+        company = user.company
+        branch = company.branches.get(pk=bpk)
+
+        products = branch.branch_products.all().prefetch_related('product')
+
+        products_data = []
+
+        for product in products:
+            pdt_data = {
+                'id': product.id,
+                'name': product.product.name,
+                'batches': []
+            }
+            batches = product.batches.filter(active=True).all().order_by('-date')
+
+            if not batches.count():
+                continue
+            
+            for batch in batches:
+                pdt_data['batches'].append({
+                    'id': batch.id,
+                    'date': batch.date.strftime('%Y-%m-%d'),
+                    'stock': int(batch.get_available_stock()),
+                    'selling_price': int(batch.get_selling_price())
+                })
+            
+            products_data.append(pdt_data)
+        
+        products_data = json.dumps(products_data).replace('"', "'")
+
+
+        context = {
+            'branch': branch,
+            'products_data': products_data
+        }
+        
+        return render(request, 'branches/sales_form.html', context)

@@ -1,0 +1,73 @@
+{% load mytags %}
+
+<c-layout2>
+	<div class="stats shadow bg-base-100 mb-4">
+		<div class="stat">
+			<div class="stat-title">Sales Today</div>
+			<div class="stat-value text-primary">{{ sales.count }}</div>
+			{% comment %} <div class="stat-desc">21% more than last month</div> {% endcomment %}
+		</div>
+        <div class="stat">
+			<div class="stat-title uppercase font-semibold"></div>
+			<div class="stat-value text-secondary">{{ total_amount|add_commas }}</div>
+			<div class="stat-desc">Shs Today</div>
+			<div class="stat-figure">
+				<a class="btn btn-neutral btn-square" title="Create a sale" href="{% url 'branches:sales_form' branch.pk %}">
+					&#43;
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="overflow-x-auto rounded-box bg-base-100">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Sale</th>
+					<th class="text-right">Amount</th>
+					<th class="text-center">Status</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for sale in sales %}
+				<tr>
+					<td>
+						<div class="flex items-center gap-3">
+							<div>
+								<div class="font-bold">{{ sale.date }}</div>
+								{% if p.product.product_code %}
+								<div class="text-sm opacity-50">{{ p.product.product_code }}</div>
+								{% endif %}
+							</div>
+						</div>
+					</td>
+					<td class="text-right">{{ sale.total_amount }}</td>
+					<td class="text-center">
+                        <span 
+                            class="badge 
+                            badge-sm 
+                            uppercase
+                            {% if sale.status == "PAID" %}
+                            badge-success 
+                            {% elif sale.status == "PARTIALLY_PAID" %}
+                            badge-warning
+                            {% elif sale.status == "CREDIT" %}
+                            badge-alert
+                            {% endif %}
+                            "
+                        >{{ sale.status }}</span>
+                    </td>
+					<td class="flex justify-end">
+						<a
+							href="{% url 'branches:product-detail' branch.pk p.pk %}"
+							class="btn btn-neutral btn-xs"
+							>View</a
+						>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</c-layout2>
