@@ -15,3 +15,6 @@ class Branch(models.Model):
 
     def __str__(self):
         return f"{self.company.name} - {self.name}"
+    
+    def verify_product(self, product):
+        return self.branch_products.filter(product=product).exists()

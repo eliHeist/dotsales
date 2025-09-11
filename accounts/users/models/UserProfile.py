@@ -21,3 +21,5 @@ class UserProfile(models.Model):
         return f"Profile of {self.user.email}"
     
     get_full_name = lambda self: f"{self.last_name} {self.first_name} {self.middle_name}"
+
+    get_initials = lambda self: f"{self.last_name[0]}{self.first_name[0]}"

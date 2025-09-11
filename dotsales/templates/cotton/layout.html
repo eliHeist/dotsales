@@ -56,12 +56,15 @@
 			<div class="h-screen w-64 flex flex-col">
 				<!-- Header -->
 				<div class="p-4 w-full">
-                    <div class="flex items-center">
-                        <div class="aspect-square w-8 rounded-sm bg-primary grid place-content-center font-semibold text-primary-content">C</div>
-                        <div>
-                            <h2>{{ company.name }}</h2>
-                        </div>
-                    </div>
+					<div class="flex items-center">
+						<div
+							class="aspect-square w-8 rounded-sm bg-primary grid place-content-center font-semibold text-primary-content">
+							C
+						</div>
+						<div>
+							<h2>{{ company.name }}</h2>
+						</div>
+					</div>
 				</div>
 
 				<!-- Scrollable Content -->
@@ -74,7 +77,9 @@
 					</div>
 
 					<div>
-						<h2 class="text-xs font-medium opacity-60 uppercase px-4">Accounts Management</h2>
+						<h2 class="text-xs font-medium opacity-60 uppercase px-4">
+							Accounts Management
+						</h2>
 						<ul class="menu w-full">
 							<li><a href="{% url 'company:users' %}">Users</a></li>
 						</ul>
@@ -83,14 +88,56 @@
 					<div>
 						<h2 class="text-xs font-medium opacity-60 uppercase px-4">Inventory</h2>
 						<ul class="menu w-full">
-							<li><a href="">Products</a></li>
+							<li><a href="{% url 'company:products' %}">Products</a></li>
 						</ul>
 					</div>
 				</div>
 
 				<!-- Footer -->
 				<div class="p-4 border-t border-base-300 text-sm text-base-content">
-					&copy; 2025 Dotsales
+					<div class="grid relative">
+						<div class="dropdown dropdown-top w-full">
+							<button
+								class="w-full bg-base-200 hover:bg-base-300 p-4 rounded-box transition-all cursor-pointer">
+								<div class="flex items-center space-x-2">
+									<div class="avatar avatar-placeholder">
+										<div
+											class="bg-secondary text-secondary-content w-8 rounded-full grid place-content-center">
+											<span class="text-xs"
+												>{{ request.user.profile.get_initials }}</span
+											>
+										</div>
+									</div>
+
+									<div class="grid flex-1">
+										<h2 class="font-semibold text-xs">
+											{{ request.user.profile.get_full_name }}
+										</h2>
+										<p class="text-xs opacity-60">
+											{{ request.user.email }}
+										</p>
+									</div>
+								</div>
+							</button>
+
+							<div
+								tabindex="0"
+								aria-label="Account options"
+								class="dropdown-content min-w-40 rounded-box bg-base-100 text-base-content shadow-sm">
+								<div class="p-4">
+									<div class="grid place-content-center text-center mb-4">
+										<p class="text-sm opacity-60">Confirm below to logout.</p>
+									</div>
+									<form action="{% url 'users:logout' %}" method="post">
+										{% csrf_token %}
+										<button class="btn btn-soft btn-error w-full">
+											Logout
+										</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

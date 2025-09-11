@@ -6,4 +6,5 @@ app_name = "company"
 urlpatterns = [
     path("", views.LandingPageView.as_view(), name="landing"),
     path("users/", views.UsersListView.as_view(), name="users"),
+    path("products/", views.ProductListView.as_view(), name="products"),
 ]

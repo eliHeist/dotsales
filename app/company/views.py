@@ -117,3 +117,62 @@ class UsersListView(LoginRequiredMixin, View):
                 )
         
         return self.get(request, *args, **kwargs)
+
+
+class ProductListView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        company = user.company
+
+        products = company.products.all()
+        branches = company.branches.all()
+
+        for branch in branches:
+            # get branch product ids
+            ids = [b.product.id for b in branch.branch_products.all()]
+            branch.product_ids = ids
+
+        context = {
+            "products": products,
+            "company_branches": branches
+        }
+        
+        return render(request, 'company/products.html', context)
+    
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        company = user.company
+
+        data = request.POST
+        pk = data.get("pk")
+        name = data.get("name")
+        product_code = data.get("product_code")
+        unit_price_str = data.get("unit_price")
+        unit_price = int(unit_price_str.replace(",", ""))
+        branch_ids = data.getlist("branch_ids")
+        branches = company.branches.filter(pk__in=branch_ids)
+
+        with transaction.atomic():
+            if pk:
+                product = company.products.get(pk=pk)
+                product.name = name
+                product.unit_price = unit_price
+                product.product_code = product_code
+                product.save()
+            else:
+                product = company.products.create(
+                    company=company,
+                    name=name,
+                    product_code=product_code,
+                    unit_price=unit_price
+                )
+            # update branch products
+            for branch in branches:
+                product.branch_products.get_or_create(
+                    product=product,
+                    branch=branch
+                )
+            # deactivate those not submited
+            product.branch_products.exclude(branch__in=branches).update(is_active=False)
+
+        return self.get(request, *args, **kwargs)
