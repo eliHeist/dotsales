@@ -82,7 +82,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def delete(self, using=None, keep_parents=False):
+    def deactivate(self, using=None, keep_parents=False):
         self.is_active ^= True
         self.save()
 

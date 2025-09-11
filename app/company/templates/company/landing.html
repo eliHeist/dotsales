@@ -6,6 +6,7 @@
                 <p>{{ company.contact }}</p>
                 <p>{{ company.address }}</p>
             </div>
+            {% if ADMIN_MODE %}
             <div>
                 <!-- Open the modal using ID.showModal() method -->
                 <button class="btn" onclick="my_modal_2.showModal()">Create a new Branch</button>
@@ -44,6 +45,7 @@
                     </form>
                 </dialog>
             </div>
+            {% endif %}
         </div>
     </header>
     
@@ -54,7 +56,12 @@
                 <div class="card-title">{{ branch.name }}</div>
                 <p>{{ branch.email }}</p>
 
-                <button class="btn" onclick="my_modal_{{ branch.id }}.showModal()">Edit</button>
+                <div class="flex gap-2">
+                    {% if ADMIN_MODE %}
+                    <button class="btn" onclick="my_modal_{{ branch.id }}.showModal()">Edit</button>
+                    {% endif %}
+                    <a class="link" onclick="">View</a>
+                </div>
                 <dialog id="my_modal_{{ branch.id }}" class="modal">
                     <div class="modal-box">
                         <form action="" method="post">

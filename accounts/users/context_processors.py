@@ -9,4 +9,4 @@ def user_company(request):
     else:
         branches = request.user.accessible_branches.all()
     print(branches)
-    return {'company': company, 'branches': branches}
+    return {'company': company, 'branches': branches, 'ADMIN_MODE': request.user.is_company_admin}

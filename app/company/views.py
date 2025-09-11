@@ -73,8 +73,8 @@ class UsersListView(LoginRequiredMixin, View):
         phone_2 = data.get("phone_2")
         is_company_admin = True if data.get("is_company_admin") == "on" else False
         
-        if not is_company_admin and user.is_company_admin and company.users.filter(is_company_admin=True).count() < 2:
-            is_company_admin = True
+        accessible_branches_list = data.getlist("accessible_branches")
+        accessible_branches = company.branches.filter(pk__in=accessible_branches_list)
 
         email = data.get("email")
         username = data.get("username")
@@ -82,6 +82,10 @@ class UsersListView(LoginRequiredMixin, View):
         with transaction.atomic():
             if pk:
                 user = company.users.get(pk=pk)
+                
+
+                if not is_company_admin and user.is_company_admin and company.users.filter(is_company_admin=True).count() < 2:
+                    is_company_admin = True
 
                 user.email = email
                 user.username = username
@@ -115,6 +119,8 @@ class UsersListView(LoginRequiredMixin, View):
                     phone_1=phone_1,
                     phone_2=phone_2
                 )
+            
+            user.accessible_branches.set(accessible_branches)
         
         return self.get(request, *args, **kwargs)
 

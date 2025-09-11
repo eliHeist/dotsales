@@ -101,7 +101,7 @@
                                 <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
                                     {% for branch in company.branches.all %}
                                     <label class="label">
-                                        <input type="checkbox" value="{{ branch.pk }}" class="checkbox" />
+                                        <input type="checkbox" value="{{ branch.pk }}" class="checkbox" name="accessible_branches" />
                                         <span>{{ branch.name }}</span>
                                     </label>
                                     {% endfor %}
@@ -233,7 +233,7 @@
                                             <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
                                                 {% for branch in company.branches.all %}
                                                 <label class="label">
-                                                    <input type="checkbox" value="{{ branch.pk }}" class="checkbox" {% if branch in user.accessible_branches.all %}checked="checked"{% endif %} />
+                                                    <input type="checkbox" value="{{ branch.pk }}" class="checkbox"  name="accessible_branches" {% if branch in user.accessible_branches.all %}checked="checked"{% endif %} />
                                                     <span>{{ branch.name }}</span>
                                                 </label>
                                                 {% endfor %}

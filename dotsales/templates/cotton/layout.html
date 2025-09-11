@@ -75,7 +75,7 @@
 							<li><a href="{% url 'company:landing' %}">Branches</a></li>
 						</ul>
 					</div>
-
+                    {% if ADMIN_MODE %}
 					<div>
 						<h2 class="text-xs font-medium opacity-60 uppercase px-4">
 							Accounts Management
@@ -91,6 +91,7 @@
 							<li><a href="{% url 'company:products' %}">Products</a></li>
 						</ul>
 					</div>
+                    {% endif %}
 				</div>
 
 				<!-- Footer -->
