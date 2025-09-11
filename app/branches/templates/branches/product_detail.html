@@ -1,0 +1,100 @@
+<c-layout2>
+	<div class="stats shadow bg-base-100 mb-4">
+		<div class="stat">
+			<div class="stat-title uppercase font-semibold">
+				{% if product.product_code %} {{ product.product_code }} {% endif %}
+			</div>
+			<div class="stat-value text-primary">{{ product.name }}</div>
+			<div class="stat-desc">{{ product.unit_price }}</div>
+		</div>
+		<div class="stat">
+			<div class="stat-title uppercase font-semibold">Quantity</div>
+			<div class="stat-value text-primary">{{ branch_product.stock.normalize }}</div>
+			<div class="stat-desc">{{ stock_batches_count }} batches stocked overall</div>
+			<div class="stat-figure text-primary">
+				<button class="btn btn-square" title="Add Stock" onclick="qty_modal.showModal()">
+					&#43;
+				</button>
+				<dialog id="qty_modal" class="modal">
+					<div class="modal-box max-h-10/12">
+						<form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+							<input type="hidden" name="action" value="restock" />
+							{% csrf_token %}
+							<fieldset class="fieldset">
+								<legend class="fieldset-legend">Date *</legend>
+								<input type="date" class="input w-full" name="date" required />
+							</fieldset>
+							<fieldset class="fieldset">
+								<legend class="fieldset-legend">Quantity *</legend>
+								<input
+									type="number"
+									class="input w-full"
+									name="quantity"
+									required />
+							</fieldset>
+
+							<div class="modal-action sm:col-span-2">
+								<button class="btn btn-primary">Restock</button>
+							</div>
+						</form>
+					</div>
+					<form method="dialog" class="modal-backdrop">
+						<button>close</button>
+					</form>
+				</dialog>
+			</div>
+		</div>
+		<div class="stat">
+			<div class="stat-title uppercase font-semibold">Stock Worth</div>
+			<div class="stat-value text-secondary">{{ branch_product.get_worth }}</div>
+			<div class="stat-desc">{{ stock_batches_count }} batches stocked overall</div>
+            <div class="stat-figure text-secondary font-bold text-2xl">
+				<span>/=</span>
+			</div>
+		</div>
+	</div>
+
+	<ul class="list bg-base-100 rounded-box shadow-md">
+		<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Previous Stock ins</li>
+
+		{% for batch in stock_batches %}
+		<li class="list-row">
+			<div class="list-col-grow">
+				<div>{{ batch.date }}</div>
+				<div class="text-xs uppercase font-semibold opacity-60">DATE</div>
+			</div>
+			<div class="text-right">
+				<div class="font-semibold">{{ batch.quantity.normalize }}</div>
+				<div class="text-xs uppercase font-semibold opacity-60">QTY</div>
+			</div>
+			<button class="btn btn-square btn-ghost" onclick="qty_modal_{{ batch.pk }}.showModal()">
+				<span class="material-symbols-outlined">edit</span>
+			</button>
+			<dialog id="qty_modal_{{ batch.pk }}" class="modal">
+				<div class="modal-box max-h-10/12">
+					<form action="" method="post" class="grid gap-4">
+						<input type="hidden" name="action" value="update_stock" />
+						<input type="hidden" name="pk" value="{{ batch.pk }}" />
+						{% csrf_token %}
+						<fieldset class="fieldset">
+							<legend class="fieldset-legend">Date *</legend>
+							<input type="date" class="input w-full" name="date" value="{{ batch.date|date:'Y-m-d' }}" required />
+						</fieldset>
+						<fieldset class="fieldset">
+							<legend class="fieldset-legend">Quantity *</legend>
+							<input type="number" class="input w-full" name="quantity" value="{{ batch.quantity.normalize }}" required />
+						</fieldset>
+
+						<div class="modal-action">
+							<button class="btn btn-primary">Update</button>
+						</div>
+					</form>
+				</div>
+				<form method="dialog" class="modal-backdrop">
+					<button>close</button>
+				</form>
+			</dialog>
+		</li>
+		{% endfor %}
+	</ul>
+</c-layout2>

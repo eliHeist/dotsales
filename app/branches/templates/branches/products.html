@@ -1,0 +1,56 @@
+<c-layout2>
+	<div class="stats shadow bg-base-100 mb-4">
+		<div class="stat">
+			<div class="stat-title">Total Products</div>
+			<div class="stat-value text-primary">{{ products.count }}</div>
+			{% comment %} <div class="stat-desc">21% more than last month</div> {% endcomment %}
+		</div>
+	</div>
+
+	<div class="overflow-x-auto rounded-box bg-base-100">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Product</th>
+					<th class="text-right">Unit Price</th>
+					<th class="text-center">Stock Qty</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for p in products %}
+				<tr>
+					<td>
+						<div class="flex items-center gap-3">
+							{% comment %}
+							<div class="avatar">
+								<div class="mask mask-squircle h-12 w-12">
+									<img
+										src="https://img.daisyui.com/images/profile/demo/2@94.webp"
+										alt="Avatar Tailwind CSS Component" />
+								</div>
+							</div>
+							{% endcomment %}
+							<div>
+								<div class="font-bold">{{ p.product.name }}</div>
+								{% if p.product.product_code %}
+								<div class="text-sm opacity-50">{{ p.product.product_code }}</div>
+								{% endif %}
+							</div>
+						</div>
+					</td>
+					<td class="text-right">{{ p.product.unit_price }}</td>
+					<td class="text-center">{{ p.get_stock }}</td>
+					<td class="flex justify-end">
+						<a
+							href="{% url 'branches:product-detail' branch.pk p.pk %}"
+							class="btn btn-neutral btn-xs"
+							>View</a
+						>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</c-layout2>
