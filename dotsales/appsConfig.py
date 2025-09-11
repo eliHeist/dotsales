@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 app_configs = [
-	{ 'app_name': 'app.company', 'url': 'app/company/', 'namespace': 'company' },
+	{ 'app_name': 'app.company', 'url': '', 'namespace': 'company' },
 
 	{ 'app_name': 'api', 'url': 'api_views/', 'namespace': 'api_views' },
 
@@ -11,7 +11,7 @@ app_configs = [
 
 	{ 'app_name': 'inventory.sales', 'url': 'inventory/sales/', 'namespace': 'sales' },
 
-	{ 'app_name': 'accounts.users', 'url': 'accounts/users/', 'namespace': 'users' },
+	{ 'app_name': 'accounts.users', 'url': 'accounts/', 'namespace': 'users' },
 
 	{ 'app_name': 'inventory.stock', 'url': 'inventory/stock/', 'namespace': 'stock' },
 

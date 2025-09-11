@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.views import View
@@ -16,9 +16,9 @@ class LoginView(View):
     def post(self, request):
         data = request.POST
         get_data = request.GET
-        username = data.get('username').strip()
+        email = data.get('email').strip()
         password = data.get('password')
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user)
@@ -27,24 +27,26 @@ class LoginView(View):
                 return redirect(next_route)
             return redirect(settings.LOGIN_REDIRECT_URL)
         
-        user_obj = User.objects.filter(username=username).exists()
-        username_error = "Username does not exist."
+        user_obj = User.objects.filter(email=email).exists()
+        email_error = "Email does not exist."
         password_error = None
 
         if user_obj:
-            username_error = None
+            email_error = None
             password_error = "Password is incorrect."
 
         context = {
-            "username": username,
+            "email": email,
             "password": password,
-            "username_error": username_error,
+            "email_error": email_error,
             "password_error": password_error,
         }
         return render(request, 'registration/login.html', context)
 
-class LogoutView(views.LogoutView):
-    pass
+class LogoutView(View):
+    def post(self, request):
+        logout(request)
+        return redirect(settings.LOGOUT_REDIRECT_URL)
 
 class PasswordResetView(views.PasswordResetView):
     success_url = reverse_lazy("accounts:password_reset_done")
@@ -64,3 +66,4 @@ class PasswordChangeView(views.PasswordChangeView):
 
 class PasswordChangeDoneView(views.PasswordChangeDoneView):
     pass
+

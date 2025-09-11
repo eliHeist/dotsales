@@ -16,6 +16,32 @@
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js" integrity="sha384-ZBXiYtYQ6hJ2Y0ZNoYuI+Nq5MqWBr+chMrS/RkXpNzQCApHEhOt2aY8EJgqwHLkJ" crossorigin="anonymous"></script>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        @plugin "daisyui" {
+            themes: light --default;
+        }
+        @plugin "daisyui/theme" {
+            name: "light";
+            default: true;
+
+            /* border radius */
+            --radius-selector: 1rem;
+            --radius-field: 2rem;
+            --radius-box: 2rem;
+
+            /* base sizes */
+            --size-selector: 0.5rem;
+            --size-field: 0.5rem;
+
+            /* border size */
+            --border: 1px;
+            
+            /* effects */
+            --depth: 0;
+            --noise: 0;
+        }
+    </style>
 </head>
 <body class="h-screen bg-white overflow-y-auto" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
     {{ slot }}
