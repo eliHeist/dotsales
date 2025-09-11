@@ -76,10 +76,16 @@ class ProductDetailView(LoginRequiredMixin, View):
         date = datetime.strptime(date_str, "%Y-%m-%d").date()
         quantity_str = data.get("quantity")
         quantity = float(quantity_str.replace(",", ""))
+        cost_str = data.get("cost")
+        cost = float(cost_str.replace(",", ""))
+        selling_price_str = data.get("selling_price")
+        selling_price = float(selling_price_str.replace(",", ""))
 
         branch_product.batches.create(
             date=date,
             quantity=quantity,
+            cost=cost,
+            selling_price=selling_price,
             branch=branch,
             product=branch_product
         )
@@ -94,10 +100,16 @@ class ProductDetailView(LoginRequiredMixin, View):
         date = datetime.strptime(date_str, "%Y-%m-%d").date()
         quantity_str = data.get("quantity")
         quantity = float(quantity_str.replace(",", ""))
+        cost_str = data.get("cost")
+        cost = float(cost_str.replace(",", ""))
+        selling_price_str = data.get("selling_price")
+        selling_price = float(selling_price_str.replace(",", ""))
 
         batch = get_object_or_404(branch_product.batches, pk=pk) # branch_product.batches.get(pk=pk)
         batch.date = date
         batch.quantity = quantity
+        batch.cost = cost
+        batch.selling_price = selling_price
         batch.save()
 
         return self.get(request, bpk, pk)

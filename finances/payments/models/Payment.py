@@ -9,7 +9,7 @@ class Payment(models.Model):
     ]
 
     sale = models.ForeignKey("sales.Sale", on_delete=models.CASCADE, related_name="payments")
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.DecimalField(max_digits=12, decimal_places=0)
     payment_date = models.DateTimeField(default=timezone.now)
     method = models.CharField(max_length=20, choices=METHOD_CHOICES, default="CASH")
 
