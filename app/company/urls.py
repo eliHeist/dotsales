@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import LandingPageView
+from . import views
 
 app_name = "company"
 
 urlpatterns = [
-    path("", LandingPageView.as_view(), name="landing"),
+    path("", views.LandingPageView.as_view(), name="landing"),
+    path("users/", views.UsersListView.as_view(), name="users"),
 ]

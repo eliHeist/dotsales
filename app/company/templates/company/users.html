@@ -1,0 +1,268 @@
+<c-layout>
+	<div class="stats bg-base-100 shadow mb-4">
+		<div class="stat">
+			<div class="stat-figure text-primary">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					class="inline-block h-8 w-8 stroke-current">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+				</svg>
+			</div>
+			<div class="stat-title">Total Users</div>
+			<div class="stat-value text-primary">{{ users.count }}</div>
+			{% comment %}
+			<div class="stat-desc">21% more than last month</div>
+			{% endcomment %}
+		</div>
+		<div class="stat">
+			<div class="stat-figure text-primary">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					class="inline-block h-8 w-8 stroke-current">
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+				</svg>
+			</div>
+			<div class="stat-title">User Actions</div>
+			<div class="mt-auto">
+                <button type="button" class="btn btn-" onclick="edit_modal.showModal()">Add User</button>
+                <dialog id="edit_modal" class="modal">
+                    <div class="modal-box max-h-10/12">
+                        <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+                            {% csrf_token %}
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">First Name *</legend>
+                                <input
+                                    type="text"
+                                    class="input w-full"
+                                    name="first_name"
+                                    required />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Middle Name</legend>
+                                <input
+                                    type="text"
+                                    class="input w-full"
+                                    name="middle_name"
+                                    />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Last Name *</legend>
+                                <input
+                                    type="text"
+                                    class="input w-full"
+                                    name="last_name"
+                                    required />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Gender *</legend>
+                                <select name="gender" class="select w-full">
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                </select>
+                            </fieldset>
+                            {% comment %} username {% endcomment %}
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Username</legend>
+                                <input type="text" class="input w-full" name="username" />
+                            </fieldset>
+                            {% comment %} email {% endcomment %}
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Email</legend>
+                                <input type="email" class="input w-full" name="email" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Primary Phone</legend>
+                                <input type="tel" class="input w-full" name="phone_1" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Other Phone</legend>
+                                <input type="tel" class="input w-full" name="phone_2" />
+                            </fieldset>
+                            <fieldset class="fieldset sm:col-span-2">
+                                <label class="label">
+                                    <input name="is_company_admin" type="checkbox" class="toggle" />
+                                    Admin Privilege
+                                </label>
+                            </fieldset>
+                            <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
+                                <legend class="fieldset-legend">Accessible branches</legend>
+                                <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
+                                    {% for branch in company.branches.all %}
+                                    <label class="label">
+                                        <input type="checkbox" value="{{ branch.pk }}" class="checkbox" />
+                                        <span>{{ branch.name }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </fieldset>
+                            
+                            <div class="modal-action sm:col-span-2">
+                                <!-- if there is a button in form, it will close the modal -->
+                                <button class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog>
+            </div>
+			{% comment %}
+			<div class="stat-desc">21% more than last month</div>
+			{% endcomment %}
+		</div>
+	</div>
+
+	<div class="overflow-x-auto rounded-box bg-base-100">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Contacts</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for user in users %}
+				<tr>
+					<td>
+						<div class="flex items-center gap-3">
+							<div>
+								<div class="font-bold">{{ user.profile.get_full_name }}</div>
+								<div class="text-sm opacity-60 uppercase">
+									{{ user.profile.get_gender_display }}
+								</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div>
+							<div class="">{{ user.email }}</div>
+							{% if user.username %}
+							<div class="text-sm opacity-60">{{ user.username }}</div>
+							{% endif %}
+						</div>
+					</td>
+					<td>
+						<div>
+							<div class="text-sm">{{ user.profile.phone_1 }}</div>
+							<div class="text-sm">{{ user.profile.phone_2 }}</div>
+						</div>
+					</td>
+					<th>
+						<div class="flex justify-end">
+							<button type="button" class="btn btn-ghost btn-xs" onclick="edit_modal_{{ user.pk }}.showModal()">Edit</button>
+							<dialog id="edit_modal_{{ user.pk }}" class="modal">
+								<div class="modal-box max-h-10/12">
+									<form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+										{% csrf_token %}
+                                        <input type="hidden" name="pk" value="{{ user.pk }}">
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">First Name *</legend>
+											<input
+												type="text"
+												class="input w-full"
+												name="first_name"
+                                                value="{{ user.profile.first_name }}"
+												required />
+										</fieldset>
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Middle Name</legend>
+											<input
+												type="text"
+												class="input w-full"
+												name="middle_name"
+                                                value="{% if user.profile.middle_name %}{{ user.profile.middle_name }}{% endif %}"
+												/>
+										</fieldset>
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Last Name *</legend>
+											<input
+												type="text"
+												class="input w-full"
+												name="last_name"
+                                                value="{{ user.profile.last_name }}"
+												required />
+										</fieldset>
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Gender *</legend>
+                                            <select name="gender" class="select w-full">
+                                                <option value="M" {% if user.profile.gender == "M" %}selected{% endif %}>Male</option>
+                                                <option value="F" {% if user.profile.gender == "F" %}selected{% endif %}>Female</option>
+                                            </select>
+										</fieldset>
+                                        {% comment %} username {% endcomment %}
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Username</legend>
+											<input type="text" class="input w-full" name="username" value="{% if user.profile.username %}{{ user.profile.username }}{% endif %}" />
+										</fieldset>
+                                        {% comment %} email {% endcomment %}
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Email</legend>
+											<input type="email" class="input w-full" name="email" value="{{ user.email }}" />
+										</fieldset>
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Primary Phone</legend>
+											<input type="tel" class="input w-full" name="phone_1" value="{% if user.profile.phone_1 %}{{ user.profile.phone_1 }}{% endif %}" />
+										</fieldset>
+										<fieldset class="fieldset">
+											<legend class="fieldset-legend">Other Phone</legend>
+											<input type="tel" class="input w-full" name="phone_2" value="{% if user.profile.phone_2 %}{{ user.profile.phone_2 }}{% endif %}" />
+										</fieldset>
+										<fieldset class="fieldset sm:col-span-2">
+											<label class="label">
+                                                <input name="is_company_admin" type="checkbox" {% if user.is_company_admin %}checked="checked"{% endif %} class="toggle" />
+                                                Admin Privilege
+                                            </label>
+										</fieldset>
+										<fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
+                                            <legend class="fieldset-legend">Accessible branches</legend>
+                                            <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
+                                                {% for branch in company.branches.all %}
+                                                <label class="label">
+                                                    <input type="checkbox" value="{{ branch.pk }}" class="checkbox" {% if branch in user.accessible_branches.all %}checked="checked"{% endif %} />
+                                                    <span>{{ branch.name }}</span>
+                                                </label>
+                                                {% endfor %}
+                                            </div>
+                                        </fieldset>
+                                        
+										<div class="modal-action sm:col-span-2">
+											<!-- if there is a button in form, it will close the modal -->
+											<button class="btn btn-primary">Update</button>
+										</div>
+									</form>
+								</div>
+								<form method="dialog" class="modal-backdrop">
+									<button>close</button>
+								</form>
+							</dialog>
+						</div>
+					</th>
+				</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Contacts</th>
+					<th></th>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</c-layout>

@@ -15,7 +15,7 @@ from django.contrib.auth.models import Permission
 class UserManager(BaseUserManager):
     """Class to manage the creation of user objects"""
 
-    def create_user(self, email, password, username=None):
+    def create_user(self, email, password, username=None, **extra_fields):
         """Creates and returns a user object
         Arguments:
         username: the string to use as username
@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
         if not password:
             raise ValueError('Users must have a password')
 
-        user = self.model(username=username,email = self.normalize_email(email),)
+        user = self.model(username=username, email = self.normalize_email(email), **extra_fields)
         user.set_password(password)
         user.is_active=True
         user.save(using=self._db)
