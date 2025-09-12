@@ -48,14 +48,16 @@ class LandingPageView(LoginRequiredMixin, View):
 
 
 class UsersListView(LoginRequiredMixin, View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         user = request.user
         company = user.company
 
         users = company.users.all().prefetch_related("profile")
+        error_message = kwargs.get("error_message", None)
 
         context = {
-            "users": users
+            "users": users,
+            "error_message": error_message
         }
         
         return render(request, 'company/users.html', context)
@@ -128,7 +130,7 @@ class UsersListView(LoginRequiredMixin, View):
             except Exception as e:
                 print(e)
         
-        return self.get(request, *args, **kwargs)
+        return self.get(request, error_message=str(e), *args, **kwargs)
 
 
 class ProductListView(LoginRequiredMixin, View):

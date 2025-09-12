@@ -92,5 +92,10 @@
 		class="h-screen bg-white overflow-y-auto"
 		hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
 		{{ slot }} {% block content %}{% endblock %}
+        {% if error_message %}
+        <script>
+            console.log(`{{ error_message|safe }}`)
+        </script>
+        {% endif %}
 	</body>
 </html>
