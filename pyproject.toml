@@ -18,4 +18,5 @@ dependencies = [
     "djangosetupheist>=0.6.2",
     "gunicorn>=23.0.0",
     "psycopg2-binary>=2.9.10",
+    "resend>=2.13.1",
 ]
