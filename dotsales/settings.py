@@ -174,6 +174,9 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 TO_EMAILS = env.list('TO_EMAILS')
 
+ADMINS = [('Elijah', 'eliyang256@gmail.com')]
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 
 USE_AZURE = env('USE_AZURE')
 
@@ -210,4 +213,24 @@ NINJA_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'mail_admins': {
+            'class': 'django.utils.log.AdminEmailHandler',
+            'level': 'ERROR',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
 

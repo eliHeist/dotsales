@@ -13,9 +13,10 @@ class CustomPasswordResetForm(PasswordResetForm):
         if settings.DEBUG:
             domain = "localhost:8000"
             protocol = "http"
-        if request and request.is_secure():
+        if request:
             domain = get_current_site(request).domain
-            protocol = "https"
+            if request.is_secure():
+                protocol = "https"
             
         email = self.cleaned_data["email"]
         for user in self.get_users(email):
@@ -31,7 +32,7 @@ class CustomPasswordResetForm(PasswordResetForm):
                 'reset_type': "reset"
             }
 
-            subject = "Account Activation at Tereka Online"
+            subject = "Account Activation"
             body = render_to_string('registration/password_reset_email_message.html', context)
             html_email = render_to_string('registration/password_reset_email.html', context)
 
