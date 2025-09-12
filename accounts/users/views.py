@@ -6,6 +6,8 @@ from django.shortcuts import redirect
 from django.views import View
 from django.contrib.auth import views
 
+from .forms import CustomPasswordResetForm
+
 
 User = get_user_model()
 
@@ -49,20 +51,29 @@ class LogoutView(View):
         return redirect(settings.LOGOUT_REDIRECT_URL)
 
 class PasswordResetView(views.PasswordResetView):
-    success_url = reverse_lazy("accounts:password_reset_done")
+    form_class = CustomPasswordResetForm
+    success_url = reverse_lazy("users:password_reset_done")
     html_email_template_name = 'registration/password_reset_email.html'
+
+    def form_valid(self, form):
+        # Inject custom context into the email
+        return form.save(
+            request=self.request,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            custom_message='Welcome to Tereka Online! Click below to reset your password.',
+        ) or super().form_valid(form)
 
 class PasswordResetDoneView(views.PasswordResetDoneView):
     pass
 
 class PasswordResetConfirmView(views.PasswordResetConfirmView):
-    success_url = reverse_lazy("accounts:password_reset_complete")
+    success_url = reverse_lazy("users:password_reset_complete")
 
 class PasswordResetCompleteView(views.PasswordResetCompleteView):
     pass
 
 class PasswordChangeView(views.PasswordChangeView):
-    success_url = reverse_lazy("accounts:password_change_done")
+    success_url = reverse_lazy("users:password_change_done")
 
 class PasswordChangeDoneView(views.PasswordChangeDoneView):
     pass
