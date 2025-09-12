@@ -130,13 +130,36 @@ class SalesView(LoginRequiredMixin, View):
 
         today = date.today()
 
+        all_sales = branch.sales.all().order_by('-date')
+
+        current_month_sales = all_sales.filter(date__year=today.year, date__month=today.month).all().order_by('-date')
+        month_total = sum(sale.amount_paid for sale in current_month_sales)
+        month_debt = sum(sale.balance for sale in current_month_sales)
+
+        current_week_sales = all_sales.filter(date__year=today.year, date__week=today.isocalendar()[1]).all().order_by('-date')
+        week_total = sum(sale.amount_paid for sale in current_week_sales)
+        week_debt = sum(sale.balance for sale in current_week_sales)
+
+        current_day_sales = all_sales.filter(date__year=today.year, date__month=today.month, date__day=today.day).all().order_by('-date')
+        day_total = sum(sale.amount_paid for sale in current_day_sales)
+        day_debt = sum(sale.balance for sale in current_day_sales)
+
         sales = branch.sales.filter(date__year=today.year, date__month=today.month, date__day=today.day).all().order_by('-date')
         total_amount = sum(sale.amount_paid for sale in sales)
 
         context = {
             'branch': branch,
-            'sales': sales,
-            'total_amount': int(total_amount)
+            'sales': all_sales,
+            'current_month_sales': current_month_sales,
+            'month_total': month_total,
+            'month_debt': month_debt,
+            'current_week_sales': current_week_sales,
+            'week_total': week_total,
+            'week_debt': week_debt,
+            'current_day_sales': current_day_sales,
+            'day_total': day_total,
+            'day_debt': day_debt,
+            'today': today,
         }
         
         return render(request, 'branches/sales.html', context)
@@ -221,6 +244,8 @@ class SalesFormView(LoginRequiredMixin, View):
         branch = company.branches.get(pk=bpk)
 
         data = request.POST
+        print(data)
+        print("\n\n")
 
         sale_id = kwargs.get("pk", None)
         date_str = data.get("date")
@@ -231,12 +256,15 @@ class SalesFormView(LoginRequiredMixin, View):
         item_batch_ids = data.getlist("item_batch_id")
         item_quantities = data.getlist("item_quantity")
 
+        print(item_ids, item_product_ids, item_batch_ids, item_quantities)
+
         payment_ids = data.getlist("payment_id")
         payment_dates = data.getlist("payment_date")
         payment_amounts = data.getlist("payment_amount")
         payment_methods = data.getlist("payment_method")
 
         with transaction.atomic():
+            print("sale")
             # create or update sale
             if sale_id:
                 sale = branch.sales.get(pk=sale_id)
@@ -248,8 +276,11 @@ class SalesFormView(LoginRequiredMixin, View):
                     branch=branch
                 )
 
+            print("items")
             # create or update sale items
             for item_id, item_product_id, item_batch_id, item_quantity in zip(item_ids, item_product_ids, item_batch_ids, item_quantities):
+                print("\n\n")
+                print("Item 1", item_id, item_product_id, item_batch_id, item_quantity)
                 if item_id != 'new':
                     sale_item = sale.items.get(pk=item_id)
                     sale_item.product_id = item_product_id
@@ -265,6 +296,7 @@ class SalesFormView(LoginRequiredMixin, View):
                 )
                 print(saley)
 
+            print("payments")
             # create or update sale payments
             for payment_id, payment_date, payment_amount, payment_method in zip(payment_ids, payment_dates, payment_amounts, payment_methods):
                 if payment_id != 'new':

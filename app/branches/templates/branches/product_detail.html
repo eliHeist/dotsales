@@ -87,6 +87,10 @@
 				<div class="text-xs uppercase font-semibold opacity-60">{{ batch.get_cost|add_commas }}</div>
 			</div>
 			<div class="text-right">
+				<div class="font-semibold">{{ batch.get_balance.normalize }}</div>
+				<div class="text-xs uppercase font-semibold opacity-60">BAL</div>
+			</div>
+			<div class="text-right">
 				<div class="font-semibold">{{ batch.quantity.normalize }}</div>
 				<div class="text-xs uppercase font-semibold opacity-60">QTY</div>
 			</div>

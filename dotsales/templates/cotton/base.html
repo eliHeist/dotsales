@@ -5,7 +5,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>{{ title }}</title>
+		<title>Tereka Online - {{ title }}</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -51,6 +51,41 @@
 			body {
 				font-family: "Plus Jakarta Sans", sans-serif;
 			}
+            .hamburger-btn {
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                overflow: hidden;
+                border-radius: .25rem;
+                border-color: var(--color-primary-content);
+                border-style: solid;
+                border-width: 1px;
+
+                background-color: var(--color-primary);
+
+                svg {
+                    stroke: var(--color-primary-content);
+                    stroke-width: 10;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                    transition: translate .5s, rotate .5s;
+                }
+
+                .line {
+                    stroke-dasharray: 60 31 60 300;
+                    transition: .5s;
+                }
+
+                &[aria-expanded="true"] .hamburger {
+                    translate: 2px -3px;
+                    rotate: .125turn;
+                }
+
+                &[aria-expanded="true"] .line {
+                    stroke-dasharray: 60 105 60 300;
+                    stroke-dashoffset: -90;
+                }
+            }
 		</style>
 	</head>
 	<body

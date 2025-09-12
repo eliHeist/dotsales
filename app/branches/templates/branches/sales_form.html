@@ -141,22 +141,21 @@
                     <tbody>
                         <template x-for="item in sale.sale_items">
                             <tr>
-                                <div class="hidden">
-                                    <input type="hidden" name="item_id" x-model="item.id">
-                                    <input type="hidden" name="item_product_id" x-model="item.product_id">
-                                    <input type="hidden" name="item_batch_id" x-model="item.batch_id">
-                                    <input type="hidden" name="item_quantity" x-model="item.quantity">
-                                </div>
-                                <td x-text="getProduct(item.product_id).name"></td>
+                                
                                 <td>
-                                    <select name="" id="" class="select" x-model="item.batch_id">
+                                    <span x-text="getProduct(item.product_id).name"></span>
+                                    <input type="hidden" name="item_product_id" x-model="item.product_id">
+                                    <input type="hidden" name="item_id" x-model="item.id">
+                                </td>
+                                <td>
+                                    <select name="item_batch_id" id="" class="select" x-model="item.batch_id">
                                         <template x-for="batch in getProduct(item.product_id).batches">
                                             <option :value="batch.id" x-text="batch.date"></option>
                                         </template>
                                     </select>
                                 </td>
                                 <td class="">
-                                    <input type="number" class="input max-w-[100px]" x-model="item.quantity">
+                                    <input type="number" name="item_quantity" class="input max-w-[100px]" x-model="item.quantity">
                                 </td>
                                 <td class="text-right" x-text="getBatch(item).selling_price.toLocaleString()"></td>
                                 <td class="text-right" x-text="(getBatch(item).selling_price * item.quantity).toLocaleString()"></td>

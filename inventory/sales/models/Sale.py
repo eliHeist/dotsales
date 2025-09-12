@@ -10,13 +10,13 @@ class Sale(models.Model):
 
     branch = models.ForeignKey("companies.Branch", on_delete=models.CASCADE, related_name="sales")
 
-    date = models.DateTimeField(default=timezone.now)
+    date = models.DateField(default=timezone.now)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="CREDIT")
     due_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return f"Sale {self.id} - {self.branch.name} - {self.date.strftime('%Y-%m-%d')}"
+        return f"Sale {self.id} - {self.branch.name} - {self.date}"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
