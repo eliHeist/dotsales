@@ -43,8 +43,18 @@ class ProductDetailView(LoginRequiredMixin, View):
 
         branch_product = branch.branch_products.get(pk=pk)
 
-        stock_batches_count = branch_product.batches.count()
         stock_batches = branch_product.batches.filter(active=True).all().order_by('-date')
+        stock_batches_count = stock_batches.count()
+
+        total_balance = 0
+        balance_worth = 0
+        all_prices = []
+        for batch in stock_batches:
+            total_balance += batch.get_balance()
+            balance_worth += batch.get_worth()
+            all_prices.append(batch.selling_price)
+
+        average_price = sum(all_prices) / len(all_prices) if all_prices else 0
 
         context = {
             'branch': branch,
@@ -52,9 +62,13 @@ class ProductDetailView(LoginRequiredMixin, View):
             'product': branch_product.product,
 
             'stock_batches_count': stock_batches_count,
-            'stock_batches': stock_batches
+            'stock_batches': stock_batches,
+
+            'total_balance': total_balance,
+            'balance_worth': balance_worth,
+            'average_price': average_price
         }
-        
+
         return render(request, 'branches/product_detail.html', context)
     
     def post(self, request, bpk, pk):

@@ -10,69 +10,82 @@
 			<div class="stat-desc">{{ product.unit_price|add_commas }}</div>
 		</div>
 		<div class="stat">
-			<div class="stat-title uppercase font-semibold">Quantity</div>
-			<div class="stat-value text-primary">{{ branch_product.stock.normalize }}</div>
-			<div class="stat-desc">{{ stock_batches_count }} batches stocked overall</div>
-			<div class="stat-figure text-primary">
-				<button class="btn btn-square" title="Add Stock" onclick="qty_modal.showModal()">
-					&#43;
-				</button>
-				<dialog id="qty_modal" class="modal">
-					<div class="modal-box max-h-10/12">
-						<form action="" method="post" class="grid sm:grid-cols-2 gap-4">
-							<input type="hidden" name="action" value="restock" />
-							{% csrf_token %}
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Date *</legend>
-								<input type="date" class="input w-full" name="date" required />
-							</fieldset>
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Quantity *</legend>
-								<input
-									type="number"
-									class="input w-full"
-									name="quantity"
-									required />
-							</fieldset>
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Cost *</legend>
-								<input
-									type="number"
-									class="input w-full"
-									name="cost"
-									required />
-                                <p class="label">Cost of stock</p>
-							</fieldset>
-							<fieldset class="fieldset">
-								<legend class="fieldset-legend">Selling Price *</legend>
-								<input
-									type="number"
-									class="input w-full"
-									name="selling_price"
-									required />
-                                <p class="label">Amount to sale each product</p>
-							</fieldset>
-
-							<div class="modal-action sm:col-span-2">
-								<button class="btn btn-primary">Restock</button>
-							</div>
-						</form>
-					</div>
-					<form method="dialog" class="modal-backdrop">
-						<button>close</button>
-					</form>
-				</dialog>
+			<div class="stat-title uppercase font-semibold">Selling Price AVG</div>
+			<div class="stat-value text-secondary">{{ average_price|add_commas }}</div>
+			<div class="stat-desc">Over {{ total_balance }} units</div>
+            <div class="stat-figure text-secondary font-bold text-2xl">
+				<span>/=</span>
 			</div>
 		</div>
 		<div class="stat">
-			<div class="stat-title uppercase font-semibold">Stock Worth</div>
-			<div class="stat-value text-secondary">{{ branch_product.get_worth|add_commas }}</div>
+			<div class="stat-title uppercase font-semibold">Stock Quantity</div>
+			<div class="stat-value text-primary">{{ total_balance.normalize }}</div>
 			<div class="stat-desc">{{ stock_batches_count }} batches stocked overall</div>
+		</div>
+		<div class="stat">
+			<div class="stat-title uppercase font-semibold">Stock Worth</div>
+			<div class="stat-value text-secondary">{{ balance_worth|add_commas }}</div>
+			<div class="stat-desc">Over {{ stock_batches_count }} batches</div>
             <div class="stat-figure text-secondary font-bold text-2xl">
 				<span>/=</span>
 			</div>
 		</div>
 	</div>
+
+    <div class="action-bar p-2 bg-base-100 rounded-box mb-4 flex justify-between">
+        <div></div>
+        <div>
+            <button class="btn btn-primary" title="Add Stock" onclick="qty_modal.showModal()">
+                <span class="text-xl">&#43;</span>
+                <span>Add stock</span>
+            </button>
+        </div>
+    </div>
+    <dialog id="qty_modal" class="modal">
+        <div class="modal-box max-h-10/12">
+            <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+                <input type="hidden" name="action" value="restock" />
+                {% csrf_token %}
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Date *</legend>
+                    <input type="date" class="input w-full" name="date" required />
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Quantity *</legend>
+                    <input
+                        type="number"
+                        class="input w-full"
+                        name="quantity"
+                        required />
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Cost *</legend>
+                    <input
+                        type="number"
+                        class="input w-full"
+                        name="cost"
+                        required />
+                    <p class="label">Cost of stock</p>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Selling Price *</legend>
+                    <input
+                        type="number"
+                        class="input w-full"
+                        name="selling_price"
+                        required />
+                    <p class="label">Amount to sale each product</p>
+                </fieldset>
+
+                <div class="modal-action sm:col-span-2">
+                    <button class="btn btn-primary">Restock</button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
 
 	<ul class="list bg-base-100 rounded-box shadow-md">
 		<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Previous Stock ins</li>
