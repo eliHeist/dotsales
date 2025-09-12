@@ -42,7 +42,7 @@
 							</div>
 						</div>
 					</td>
-					<td class="text-right">{{ sale.total_amount }}</td>
+					<td class="text-right">{{ sale.amount_paid|add_commas }}</td>
 					<td class="text-center">
                         <span 
                             class="badge 
@@ -60,7 +60,7 @@
                     </td>
 					<td class="flex justify-end">
 						<a
-							href="{% url 'branches:product-detail' branch.pk p.pk %}"
+							href="{% url 'branches:sales_form_update' branch.pk sale.pk %}"
 							class="btn btn-neutral btn-xs"
 							>View</a
 						>

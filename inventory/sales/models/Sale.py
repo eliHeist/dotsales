@@ -18,10 +18,12 @@ class Sale(models.Model):
     def __str__(self):
         return f"Sale {self.id} - {self.branch.name} - {self.date.strftime('%Y-%m-%d')}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
     @property
     def total_amount(self):
-        self.total_amount = sum(item.line_total() for item in self.items.all())
-        self.save()
+        return sum(item.line_total() for item in self.items.all())
 
     @property
     def amount_paid(self):

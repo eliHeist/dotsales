@@ -9,4 +9,5 @@ urlpatterns = [
     path("<int:bpk>/products/<int:pk>", views.ProductDetailView.as_view(), name="product-detail"),
     path("<int:bpk>/sales", views.SalesView.as_view(), name="sales"),
     path("<int:bpk>/sales/form", views.SalesFormView.as_view(), name="sales_form"),
+    path("<int:bpk>/sales/form/<int:pk>", views.SalesFormView.as_view(), name="sales_form_update"),
 ]

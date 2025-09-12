@@ -1,52 +1,100 @@
 
 <c-layout2>
-    <section x-data="{
+    <form method="POST" x-data="{
         products_data: {{ products_data|safe }},
 
+        step: 1,
+
+        {% if sale %}
+        sale: {{ sale|safe }},
+        {% else %}
         sale: {
+            id: 'new',
             date: new Date().toISOString().split('T')[0],
             sale_items: [],
             payments: []
         },
+        {% endif %}
 
         addToSale(id) {
-            const product = this.products_data.find(p => p.id == id)
+            const product = this.getProduct(id)
 
             if (!product) {
                 return
             }
+            firstBatch = product.batches[0]
             
             this.sale.sale_items.push({
+                id: 'new',
                 product_id: product.id,
-                batch_id: null,
+                batch_id: firstBatch.id,
                 quantity: 1,
+            })
+        },
+        removeFromSale(item){
+            this.sale.sale_items = this.sale.sale_items.filter(s => s.id != item.id)
+        },
+
+        getProduct(id){
+            return this.products_data.find(p => p.id == id)
+        },
+        getBatch(item){
+            const product = this.getProduct(item.product_id)
+            console.log(item)
+            console.log(product.batches)
+            console.log(product.batches.find(b => b.id == item.batch_id))
+            return product.batches.find(b => b.id == item.batch_id)
+        },
+
+        unselectedProducts() {
+            return this.products_data.filter(p => !this.sale.sale_items.find(s => s.product_id == p.id))
+        },
+
+        generateSaleTotal() {
+            return this.sale.sale_items.reduce((total, item) => {
+                const batch = this.getBatch(item)
+                return total + (item.quantity * batch.selling_price)
+            }, 0)
+        },
+
+        addPayment(amount=0) {
+            if (this.sale.payments.length == 0) {
+                amount = this.generateSaleTotal()
+            }
+            this.sale.payments.push({
+                id: 'new',
+                payment_amount: amount,
+                payment_method: 'CASH',
+                payment_date: this.sale.date
             })
         },
 
         init() {
             console.log(this.products_data)
+            console.log(this.sale)
         }
-    }" class="md:flex">
-
-        <aside class="grid bg-base-100 py-2 px-4 rounded-box">
+    }" class="grid md:flex gap-4 items-stretch">
+        {% csrf_token %}
+        <aside class="bg-base-100 py-2 px-4 rounded-box">
             <fieldset class="fieldset">
                 <legend class="fieldset-legend">Date *</legend>
                 <input type="date" class="input w-full" name="date" x-model="sale.date" required />
+                <input type="hidden" name="sale_id" x-model="sale.id">
             </fieldset>
 
-            <div class="prods mt-4">
+            <div class="prods mt-4" x-cloak x-show="step == 1">
                 <ul class="list">
                     <li class="py-2 opacity-60 text-xs">Products</li>
                     <li class="pb-2">
                         <input type="search" class="input w-full" placeholder="Search">
                     </li>
-                    <template x-for="product in products_data">
+                    <template x-for="product in unselectedProducts()">
                         <li class="list-row -mx-4">
                             <div class="list-col-grow">
                                 <div class="font-semibold" x-text="product.name"></div>
                             </div>
                             <div>
-                                <button class="btn btn-xs btn-square" @click="addToSale(product.id)">
+                                <button type="button" class="btn btn-xs btn-square" @click="addToSale(product.id)">
                                     <span class="text-xl">
                                         &#43;
                                     </span>
@@ -58,27 +106,98 @@
             </div>
         </aside>
 
-        <div class="sale grid">
-            <div class="grid">
-                <template x-for="item in sale.sale_items">
-                    <div class="join">
-                        <select name="" id="" class="select join-item">
-                            <template x-for="product in products_data">
-                                <option :value="product.id" x-text="product.name"></option>
-                            </template>
-                        </select>
-                        <input type="number" class="input input-bordered join-item" x-model="item.quantity" />
-                        <div class="join-item grid place-content-center aspect-square">
-                            <span class="material-symbols-outlined">close_small</span>
-                        </div>
-                        <input type="number" class="input input-bordered join-item" x-model="item.price" />
-                        <button class="btn btn-error btn-square join-item" @click="sale.sale_items.splice(sale.sale_items.indexOf(item), 1)">
-                            <span class="material-symbols-outlined">delete</span>
+        <div class="sale bg-base-100 py-2 px-4 rounded-box flex-1">
+            <header class="mb-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-semibold">Sale</h2>
+                        <span class="" x-text="generateSaleTotal().toLocaleString()"></span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="btn btn-neutral" @click="step = 2" x-cloak x-show="step == 1 && sale.sale_items.length >= 1">
+                            Review Payment
+                        </button>
+                        <button class="btn btn-primary" x-cloak x-show="step == 2 && sale.sale_items.length >= 1">
+                            Create Sale
+                        </button>
+                        <button type="button" class="btn" @click="step = 1" x-cloak x-show="step == 2">
+                            Back to Products
                         </button>
                     </div>
+                </div>
+            </header>
+            <div class="items" x-cloak x-show="step == 1">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Batch</th>
+                            <th>Qty</th>
+                            <th class="text-right">Unit Price</th>
+                            <th class="text-right">Total Price</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="item in sale.sale_items">
+                            <tr>
+                                <div class="hidden">
+                                    <input type="hidden" name="item_id" x-model="item.id">
+                                    <input type="hidden" name="item_product_id" x-model="item.product_id">
+                                    <input type="hidden" name="item_batch_id" x-model="item.batch_id">
+                                    <input type="hidden" name="item_quantity" x-model="item.quantity">
+                                </div>
+                                <td x-text="getProduct(item.product_id).name"></td>
+                                <td>
+                                    <select name="" id="" class="select" x-model="item.batch_id">
+                                        <template x-for="batch in getProduct(item.product_id).batches">
+                                            <option :value="batch.id" x-text="batch.date"></option>
+                                        </template>
+                                    </select>
+                                </td>
+                                <td class="">
+                                    <input type="number" class="input max-w-[100px]" x-model="item.quantity">
+                                </td>
+                                <td class="text-right" x-text="getBatch(item).selling_price.toLocaleString()"></td>
+                                <td class="text-right" x-text="(getBatch(item).selling_price * item.quantity).toLocaleString()"></td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-ghost btn-square" @click="removeFromSale(item)">
+                                        <span class="">
+                                            &times;
+                                        </span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="payments" x-cloak x-show="step == 2">
+                <template x-for="payment in sale.payments">
+                    <div class="flex gap-4">
+                        <input type="hidden" name="payment_id" x-model="payment.id">
+                        <div class="flex-1">
+                            <input type="date" name="payment_date" class="input w-full" x-model="payment.payment_date" required>
+                        </div>
+                        <div class="flex-1">
+                            <input type="number" name="payment_amount" class="input w-full" x-model="payment.payment_amount" required>
+                        </div>
+                        <div class="flex-1">
+                            <select name="payment_method" x-model="payment.payment_method" class="select w-full">
+                                <option value="CASH">Cash</option>
+                                <option value="MOBILE_MONEY">Mobile Money</option>
+                                <option value="BANK">Bank Transfer</option>
+                            </select>
+                        </div>
+                    </div>
                 </template>
+                <div class="mt-4 flex justify-end">
+                    <button class="btn btn-neutral" type="button" @click="addPayment()">
+                        Add Payment
+                    </button>
+                </div>
             </div>
         </div>
 
-    </section>
+    </form>
 </c-layout2>

@@ -1,8 +1,10 @@
 from datetime import datetime, date
 import json
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
+from django.db import transaction
 
 
 class BranchesView(LoginRequiredMixin, View):
@@ -148,6 +150,37 @@ class SalesFormView(LoginRequiredMixin, View):
 
         products = branch.branch_products.all().prefetch_related('product')
 
+        pk = kwargs.get("pk")
+        if pk:
+            sale_ = branch.sales.get(pk=pk)
+            sale = {
+                "id": sale_.id,
+                "date": sale_.date.strftime('%Y-%m-%d'),
+                "sale_items": [],
+                "payments": [],
+            }
+
+            print(sale_.items.all())
+            for sale_item in sale_.items.all():
+                sale["sale_items"].append({
+                    "id": sale_item.id,
+                    "product_id": sale_item.product.id,
+                    "batch_id": sale_item.stock_batch.id,
+                    "quantity": float(sale_item.quantity),
+                })
+
+            for payment in sale_.payments.all():
+                sale["payments"].append({
+                    "id": payment.id,
+                    "payment_amount": int(payment.amount),
+                    "payment_method": payment.method,
+                    "payment_date": payment.payment_date.strftime('%Y-%m-%d'),
+                })
+            print(sale)
+            sale = json.dumps(sale).replace('"', "'")
+        else:
+            sale = None
+
         products_data = []
 
         for product in products:
@@ -175,8 +208,77 @@ class SalesFormView(LoginRequiredMixin, View):
 
 
         context = {
+            'sale': sale,
             'branch': branch,
             'products_data': products_data
         }
         
         return render(request, 'branches/sales_form.html', context)
+
+    def post(self, request, bpk, *args, **kwargs):
+        user = request.user
+        company = user.company
+        branch = company.branches.get(pk=bpk)
+
+        data = request.POST
+
+        sale_id = kwargs.get("pk", None)
+        date_str = data.get("date")
+        date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+        item_ids = data.getlist("item_id")
+        item_product_ids = data.getlist("item_product_id")
+        item_batch_ids = data.getlist("item_batch_id")
+        item_quantities = data.getlist("item_quantity")
+
+        payment_ids = data.getlist("payment_id")
+        payment_dates = data.getlist("payment_date")
+        payment_amounts = data.getlist("payment_amount")
+        payment_methods = data.getlist("payment_method")
+
+        with transaction.atomic():
+            # create or update sale
+            if sale_id:
+                sale = branch.sales.get(pk=sale_id)
+                sale.date = date
+                sale.save()
+            else:
+                sale = branch.sales.create(
+                    date=date,
+                    branch=branch
+                )
+
+            # create or update sale items
+            for item_id, item_product_id, item_batch_id, item_quantity in zip(item_ids, item_product_ids, item_batch_ids, item_quantities):
+                if item_id != 'new':
+                    sale_item = sale.items.get(pk=item_id)
+                    sale_item.product_id = item_product_id
+                    sale_item.stock_batch_id = item_batch_id
+                    sale_item.quantity = float(item_quantity.replace(",", ""))
+                    sale_item.save()
+                    continue
+                saley = sale.items.create(
+                    product_id=item_product_id,
+                    stock_batch_id=item_batch_id,
+                    quantity=float(item_quantity.replace(",", "")),
+                    sale=sale
+                )
+                print(saley)
+
+            # create or update sale payments
+            for payment_id, payment_date, payment_amount, payment_method in zip(payment_ids, payment_dates, payment_amounts, payment_methods):
+                if payment_id != 'new':
+                    sale_payment = sale.payments.get(pk=payment_id)
+                    sale_payment.payment_date = datetime.strptime(payment_date, "%Y-%m-%d").date()
+                    sale_payment.amount = float(payment_amount.replace(",", ""))
+                    sale_payment.method = payment_method
+                    sale_payment.save()
+                    continue
+                sale.payments.create(
+                    payment_date=datetime.strptime(payment_date, "%Y-%m-%d").date(),
+                    amount=float(payment_amount.replace(",", "")),
+                    method=payment_method,
+                    sale=sale
+                )
+
+        return redirect(reverse_lazy('branches:sales', kwargs={'bpk': bpk}))
