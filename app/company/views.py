@@ -18,7 +18,7 @@ class LandingPageView(LoginRequiredMixin, View):
         
         company = user.company
 
-        pk = data.get("pk")
+        pk = data.get("pk", None)
         name = data.get("branch_name")
         location = data.get("location")
         email = data.get("email")
@@ -27,7 +27,7 @@ class LandingPageView(LoginRequiredMixin, View):
 
         with transaction.atomic():
             if pk:
-                branch = Branch.objects.get(pk=pk)
+                branch = company.branches.get(pk=pk)
                 branch.name = name
                 branch.location = location
                 branch.email = email
@@ -35,9 +35,12 @@ class LandingPageView(LoginRequiredMixin, View):
                 branch.phone_2 = phone_2
                 branch.save()
             else:
-                Branch.objects.create(
+                company.branches.create(
                     company=company,
                     name=name,
+                    email=email,
+                    phone_1=phone_1,
+                    phone_2=phone_2,
                     location=location
                 )
 
@@ -45,14 +48,16 @@ class LandingPageView(LoginRequiredMixin, View):
 
 
 class UsersListView(LoginRequiredMixin, View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         user = request.user
         company = user.company
 
         users = company.users.all().prefetch_related("profile")
+        error_message = kwargs.get("error_message", None)
 
         context = {
-            "users": users
+            "users": users,
+            "error_message": error_message
         }
         
         return render(request, 'company/users.html', context)
@@ -80,49 +85,52 @@ class UsersListView(LoginRequiredMixin, View):
         username = data.get("username")
 
         with transaction.atomic():
-            if pk:
-                user = company.users.get(pk=pk)
+            try: 
+                if pk:
+                    user = company.users.get(pk=pk)
+                    
+
+                    if not is_company_admin and user.is_company_admin and company.users.filter(is_company_admin=True).count() < 2:
+                        is_company_admin = True
+
+                    user.email = email
+                    user.username = username
+                    user.is_company_admin=is_company_admin
+                    user.save()
+
+                    user.profile.first_name = first_name
+                    user.profile.middle_name = middle_name
+                    user.profile.last_name = last_name
+                    user.profile.gender = gender
+                    user.profile.phone_1 = phone_1
+                    user.profile.phone_2 = phone_2
+                    user.profile.save()
+                else:
+                    # generate a random password
+                    password = "password"
+                    
+                    user = company.users.create_user(
+                        email=email,
+                        password=password,
+                        username=username,
+                        is_company_admin=is_company_admin,
+                        company=company
+                    )
+                    UserProfile.objects.create(
+                        user=user,
+                        first_name=first_name,
+                        middle_name=middle_name,
+                        last_name=last_name,
+                        gender=gender,
+                        phone_1=phone_1,
+                        phone_2=phone_2
+                    )
                 
-
-                if not is_company_admin and user.is_company_admin and company.users.filter(is_company_admin=True).count() < 2:
-                    is_company_admin = True
-
-                user.email = email
-                user.username = username
-                user.is_company_admin=is_company_admin
-                user.save()
-
-                user.profile.first_name = first_name
-                user.profile.middle_name = middle_name
-                user.profile.last_name = last_name
-                user.profile.gender = gender
-                user.profile.phone_1 = phone_1
-                user.profile.phone_2 = phone_2
-                user.profile.save()
-            else:
-                # generate a random password
-                password = "password"
-                
-                user = company.users.create_user(
-                    email=email,
-                    password=password,
-                    username=username,
-                    is_company_admin=is_company_admin,
-                    company=company
-                )
-                UserProfile.objects.create(
-                    user=user,
-                    first_name=first_name,
-                    middle_name=middle_name,
-                    last_name=last_name,
-                    gender=gender,
-                    phone_1=phone_1,
-                    phone_2=phone_2
-                )
-            
-            user.accessible_branches.set(accessible_branches)
+                user.accessible_branches.set(accessible_branches)
+            except Exception as e:
+                print(e)
         
-        return self.get(request, *args, **kwargs)
+        return self.get(request, error_message=str(e), *args, **kwargs)
 
 
 class ProductListView(LoginRequiredMixin, View):

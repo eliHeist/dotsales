@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models.Company import Company
 from .forms import CompanyAdminUserForm
 from accounts.users.models.User import User
+
+from .models import Company, Branch
 
 class CompanyUserInline(admin.StackedInline):
     model = User
@@ -21,4 +22,9 @@ class CompanyUserInline(admin.StackedInline):
 class CompanyAdmin(admin.ModelAdmin):
     # inlines = [CompanyUserInline]
     list_display = ("name", "contact", "address")
+
+@admin.register(Branch)
+class BranchAdmin(admin.ModelAdmin):
+    # inlines = [CompanyUserInline]
+    list_display = ("name", "company", "email")
 
