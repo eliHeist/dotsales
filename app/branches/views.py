@@ -130,13 +130,36 @@ class SalesView(LoginRequiredMixin, View):
 
         today = date.today()
 
+        all_sales = branch.sales.all().order_by('-date')
+
+        current_month_sales = all_sales.filter(date__year=today.year, date__month=today.month).all().order_by('-date')
+        month_total = sum(sale.amount_paid for sale in current_month_sales)
+        month_debt = sum(sale.balance for sale in current_month_sales)
+
+        current_week_sales = all_sales.filter(date__year=today.year, date__week=today.isocalendar()[1]).all().order_by('-date')
+        week_total = sum(sale.amount_paid for sale in current_week_sales)
+        week_debt = sum(sale.balance for sale in current_week_sales)
+
+        current_day_sales = all_sales.filter(date__year=today.year, date__month=today.month, date__day=today.day).all().order_by('-date')
+        day_total = sum(sale.amount_paid for sale in current_day_sales)
+        day_debt = sum(sale.balance for sale in current_day_sales)
+
         sales = branch.sales.filter(date__year=today.year, date__month=today.month, date__day=today.day).all().order_by('-date')
         total_amount = sum(sale.amount_paid for sale in sales)
 
         context = {
             'branch': branch,
-            'sales': sales,
-            'total_amount': int(total_amount)
+            'sales': all_sales,
+            'current_month_sales': current_month_sales,
+            'month_total': month_total,
+            'month_debt': month_debt,
+            'current_week_sales': current_week_sales,
+            'week_total': week_total,
+            'week_debt': week_debt,
+            'current_day_sales': current_day_sales,
+            'day_total': day_total,
+            'day_debt': day_debt,
+            'today': today,
         }
         
         return render(request, 'branches/sales.html', context)
