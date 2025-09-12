@@ -18,16 +18,18 @@ class LandingPageView(LoginRequiredMixin, View):
         
         company = user.company
 
-        pk = data.get("pk")
+        pk = data.get("pk", None)
         name = data.get("branch_name")
         location = data.get("location")
         email = data.get("email")
         phone_1 = data.get("phone_1")
         phone_2 = data.get("phone_2")
 
+        print(pk, name, location, email, phone_1, phone_2)
+
         with transaction.atomic():
             if pk:
-                branch = Branch.objects.get(pk=pk)
+                branch = company.branches.get(pk=pk)
                 branch.name = name
                 branch.location = location
                 branch.email = email
@@ -35,9 +37,12 @@ class LandingPageView(LoginRequiredMixin, View):
                 branch.phone_2 = phone_2
                 branch.save()
             else:
-                Branch.objects.create(
+                company.branches.create(
                     company=company,
                     name=name,
+                    email=email,
+                    phone_1=phone_1,
+                    phone_2=phone_2,
                     location=location
                 )
 

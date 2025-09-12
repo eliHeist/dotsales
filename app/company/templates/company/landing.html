@@ -12,7 +12,7 @@
                 <button class="btn" onclick="my_modal_2.showModal()">Create a new Branch</button>
                 <dialog id="my_modal_2" class="modal">
                     <div class="modal-box">
-                        <form action="" method="post">
+                        <form action="{% url 'company:landing' %}?action=create_branch" method="post">
                             {% csrf_token %}
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Name *</legend>
@@ -32,7 +32,7 @@
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Location</legend>
-                                <input type="text" class="input w-full" name="name" />
+                                <input type="text" class="input w-full" name="location" />
                             </fieldset>
                             <div class="modal-action">
                                 <!-- if there is a button in form, it will close the modal -->
@@ -54,17 +54,31 @@
         <div class="card bg-base-100">
             <div class="card-body relative">
                 <div class="card-title">{{ branch.name }}</div>
-                <p>{{ branch.email }}</p>
+                <div>
+                    {% if branch.email %}
+                    <p>{{ branch.email }}</p>
+                    {% endif %}
+                    {% if branch.phone_1 %}
+                    <p>{{ branch.phone_1 }}</p>
+                    {% endif %}
+                    {% if branch.phone_2 %}
+                    <p>{{ branch.phone_2 }}</p>
+                    {% endif %}
+                    {% if branch.location %}
+                    <p>{{ branch.location }}</p>
+                    {% endif %}
+                </div>
 
                 <div class="flex gap-4">
                     {% if ADMIN_MODE %}
-                    <button class="btn" onclick="my_modal_{{ branch.id }}.showModal()">Edit</button>
+                    <button class="btn" onclick="branch_modal_{{ branch.pk }}_edit.showModal()">Edit</button>
                     {% endif %}
                     <a class="btn btn-neutral" href="{% url 'branches:landing' branch.id %}">View</a>
                 </div>
-                <dialog id="my_modal_{{ branch.id }}" class="modal">
+                {% if ADMIN_MODE %}
+                <dialog id="branch_modal_{{ branch.pk }}_edit" class="modal">
                     <div class="modal-box">
-                        <form action="" method="post">
+                        <form action="{% url 'company:landing' %}?action=edit_branch" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="pk" value="{{ branch.pk }}">
                             <fieldset class="fieldset">
@@ -85,7 +99,7 @@
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Location</legend>
-                                <input type="text" value="{% if branch.location %}{{ branch.location }}{% endif %}" class="input w-full" name="name" />
+                                <input type="text" value="{% if branch.location %}{{ branch.location }}{% endif %}" class="input w-full" name="location" />
                             </fieldset>
                             <div class="modal-action">
                                 <!-- if there is a button in form, it will close the modal -->
@@ -97,6 +111,7 @@
                         <button>close</button>
                     </form>
                 </dialog>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
