@@ -98,7 +98,11 @@ pydantic-core==2.33.2
 pyjwt==2.10.1
     # via django-ninja-jwt
 requests==2.32.5
-    # via azure-core
+    # via
+    #   azure-core
+    #   resend
+resend==2.13.1
+    # via dotsales (pyproject.toml)
 shortuuid==1.0.13
     # via django-unicorn
 six==1.17.0
@@ -114,6 +118,7 @@ typing-extensions==4.15.0
     #   beautifulsoup4
     #   pydantic
     #   pydantic-core
+    #   resend
     #   typing-inspection
 typing-inspection==0.4.1
     # via pydantic

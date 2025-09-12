@@ -165,7 +165,11 @@ LOGIN_REDIRECT_URL = "company:landing"
 LOGOUT_REDIRECT_URL = 'users:login'
 
 # Email settings
-EMAIL_BACKEND = env('EMAIL_BACKEND')
+if env('USE_RESEND'):
+    EMAIL_BACKEND = 'dotsales.email_backends.ResendEmailBackend'
+else:
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
+
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS')
