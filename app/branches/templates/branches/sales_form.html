@@ -126,15 +126,15 @@
                     </div>
                 </div>
             </header>
-            <div class="items" x-cloak x-show="step == 1">
+            <div class="items w-full" x-cloak x-show="step == 1">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Product</th>
-                            <th>Batch</th>
-                            <th>Qty</th>
-                            <th class="text-right">Unit Price</th>
-                            <th class="text-right">Total Price</th>
+                            <th class="hidden md:table-cell">Batch</th>
+                            <th class="hidden md:table-cell">Qty</th>
+                            <th class="text-right hidden md:table-cell">Unit Price</th>
+                            <th class="text-right hidden md:table-cell">Total Price</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -146,19 +146,39 @@
                                     <span x-text="getProduct(item.product_id).name"></span>
                                     <input type="hidden" name="item_product_id" x-model="item.product_id">
                                     <input type="hidden" name="item_id" x-model="item.id">
+                                    <div class="md:hidden">
+                                        <div class="flex justify-between">
+                                            <fieldset class="fieldset">
+                                                <legend class="fieldset-legend">Batch</legend>
+                                                <select id="" class="select" x-model="item.batch_id">
+                                                    <template x-for="batch in getProduct(item.product_id).batches">
+                                                        <option :value="batch.id" x-text="batch.date"></option>
+                                                    </template>
+                                                </select>
+                                            </fieldset>
+                                            <fieldset class="fieldset">
+                                                <legend class="fieldset-legend">Quantity</legend>
+                                                <input type="number" name="" class="input w-[120px]" x-model="item.quantity">
+                                            </fieldset>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <p x-text="getBatch(item).selling_price.toLocaleString()"></p>
+                                            <p x-text="(getBatch(item).selling_price * item.quantity).toLocaleString()"></p>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>
+                                <td class="hidden md:table-cell">
                                     <select name="item_batch_id" id="" class="select" x-model="item.batch_id">
                                         <template x-for="batch in getProduct(item.product_id).batches">
                                             <option :value="batch.id" x-text="batch.date"></option>
                                         </template>
                                     </select>
                                 </td>
-                                <td class="">
+                                <td class="hidden md:table-cell">
                                     <input type="number" name="item_quantity" class="input max-w-[100px]" x-model="item.quantity">
                                 </td>
-                                <td class="text-right" x-text="getBatch(item).selling_price.toLocaleString()"></td>
-                                <td class="text-right" x-text="(getBatch(item).selling_price * item.quantity).toLocaleString()"></td>
+                                <td class="text-right hidden md:table-cell" x-text="getBatch(item).selling_price.toLocaleString()"></td>
+                                <td class="text-right hidden md:table-cell" x-text="(getBatch(item).selling_price * item.quantity).toLocaleString()"></td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-ghost btn-square" @click="removeFromSale(item)">
                                         <span class="">
@@ -173,7 +193,7 @@
             </div>
             <div class="payments" x-cloak x-show="step == 2">
                 <template x-for="payment in sale.payments">
-                    <div class="flex gap-4">
+                    <div class="grid grid-cols-2 sm:flex gap-4">
                         <input type="hidden" name="payment_id" x-model="payment.id">
                         <div class="flex-1">
                             <input type="date" name="payment_date" class="input w-full" x-model="payment.payment_date" required>

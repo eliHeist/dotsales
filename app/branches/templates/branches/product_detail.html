@@ -1,7 +1,7 @@
 {% load mytags %}
 
 <c-layout2>
-	<div class="stats shadow bg-base-100 mb-4">
+	<div class="stats stats-vertical md:stats-horizontal w-full shadow bg-base-100 mb-4">
 		<div class="stat">
 			<div class="stat-title uppercase font-semibold">
 				{% if product.product_code %} {{ product.product_code }} {% endif %}
@@ -96,30 +96,55 @@
                 {{ batch.pk }}
             </div>
 			<div class="list-col-grow">
-				<div>{{ batch.date }}</div>
-				<div class="text-xs uppercase font-semibold opacity-60">{{ batch.get_cost|add_commas }}</div>
+				<div class="flex gap-2 items-center font-semibold">
+                    {{ batch.date }}
+                    <span class="text-xs opacity-60 md:hidden">{{ batch.get_cost|add_commas }}</span>
+                </div>
+				<div class="text-xs uppercase font-semibold opacity-60 hidden md:block">{{ batch.get_cost|add_commas }}</div>
+                <div class="md:hidden mt-2">
+                    <div class="flex justify-between">
+                        <div class="flex items-center gap-1 flex-row-reverse">
+                            <div class="font-semibold">{{ batch.get_balance.normalize }}</div>
+                            <div class="text-xs uppercase font-semibold opacity-60">BAL</div>
+                        </div>
+                        <div class="flex items-center gap-1 flex-row-reverse">
+                            <div class="font-semibold">{{ batch.quantity.normalize }}</div>
+                            <div class="text-xs uppercase font-semibold opacity-60">QTY</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <div class="flex items-center gap-1 flex-row-reverse">
+                            <div class="font-semibold">{{ batch.get_selling_price|add_commas }}</div>
+                            <div class="text-xs uppercase font-semibold opacity-60">SELLING</div>
+                        </div>
+                        <div class="flex items-center gap-1 flex-row-reverse">
+                            <div class="font-semibold">{{ batch.get_worth|add_commas }}</div>
+                            <div class="text-xs uppercase font-semibold opacity-60">WORTH</div>
+                        </div>
+                    </div>
+                </div>
 			</div>
-			<div class="text-right">
+			<div class="text-right hidden md:block">
 				<div class="font-semibold">{{ batch.get_balance.normalize }}</div>
 				<div class="text-xs uppercase font-semibold opacity-60">BAL</div>
 			</div>
-			<div class="text-right">
+			<div class="text-right hidden md:block">
 				<div class="font-semibold">{{ batch.quantity.normalize }}</div>
 				<div class="text-xs uppercase font-semibold opacity-60">QTY</div>
 			</div>
-			<div class="text-right">
+			<div class="text-right hidden md:block">
 				<div class="font-semibold">{{ batch.get_selling_price|add_commas }}</div>
 				<div class="text-xs uppercase font-semibold opacity-60">SELLING</div>
 			</div>
-			<div class="text-right">
+			<div class="text-right hidden md:block">
 				<div class="font-semibold">{{ batch.get_worth|add_commas }}</div>
 				<div class="text-xs uppercase font-semibold opacity-60">WORTH</div>
 			</div>
-            {% if self.get_balance == 0 %}
+            {% comment %} {% if self.get_balance == 0 %}
 			<button class="btn btn-square btn-ghost">
 				<span class="material-symbols-outlined">edit</span>
 			</button>
-            {% endif %}
+            {% endif %} {% endcomment %}
 			<button class="btn btn-square btn-ghost" onclick="qty_modal_{{ batch.pk }}.showModal()">
 				<span class="material-symbols-outlined">edit</span>
 			</button>

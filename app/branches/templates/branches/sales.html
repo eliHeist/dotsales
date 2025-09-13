@@ -1,7 +1,7 @@
 {% load mytags %}
 
 <c-layout2>
-	<div class="stats shadow bg-base-100 mb-4">
+	<div class="stats stats-vertical md:stats-horizontal w-full shadow bg-base-100 mb-4">
 		<div class="stat">
 			<div class="stat-title">Sales Today</div>
 			<div class="stat-value text-primary">{{ sales.count }}</div>
@@ -48,9 +48,10 @@
 			<thead>
 				<tr>
 					<th>Sale</th>
-					<th class="text-center">Status</th>
-					<th class="text-right">Amount Paid</th>
-					<th class="text-right">Balance</th>
+					<th class="text-center hidden md:table-cell">Status</th>
+					<th class="text-right hidden md:table-cell">Amount Paid</th>
+					<th class="text-right hidden md:table-cell">Balance</th>
+					<th class="text-right md:hidden">Amounts</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -66,8 +67,23 @@
 								{% endif %}
 							</div>
 						</div>
+                        <div class="md:hidden">
+                            <span 
+                                class="badge 
+                                badge-sm 
+                                uppercase
+                                {% if sale.status == "PAID" %}
+                                badge-success 
+                                {% elif sale.status == "PARTIALLY_PAID" %}
+                                badge-warning
+                                {% elif sale.status == "CREDIT" %}
+                                badge-alert
+                                {% endif %}
+                                "
+                            >{{ sale.status }}</span>
+                        </div>
 					</td>
-					<td class="text-center">
+					<td class="text-center hidden md:table-cell">
                         <span 
                             class="badge 
                             badge-sm 
@@ -82,8 +98,12 @@
                             "
                         >{{ sale.status }}</span>
                     </td>
-					<td class="text-right">{{ sale.amount_paid|add_commas }}</td>
-					<td class="text-right">{{ sale.balance|add_commas }}</td>
+					<td class="text-right hidden md:table-cell">{{ sale.amount_paid|add_commas }}</td>
+					<td class="text-right hidden md:table-cell">{{ sale.balance|add_commas }}</td>
+                    <td class="text-right md:hidden font-semibold">
+                        <div class="text-success">{{ sale.amount_paid|add_commas }}</div>
+                        <div class="text-error">{{ sale.balance|add_commas }}</div>
+                    </td>
 					<td class="flex justify-end">
 						<a
 							href="{% url 'branches:sales_form_update' branch.pk sale.pk %}"
