@@ -8,6 +8,7 @@
             global_loading: false,
             error: '',
             show_sidebar: true,
+            sm_show: false,
             async handlePDF() {
                 this.pdf_loading = true;
                 this.error = '';
@@ -44,103 +45,114 @@
 				<span x-text="error"></span>
 			</div>
 		</div>
-		<div class="h-screen grid" :class="{ 'md:hidden': !show_sidebar }">
-			<div class="h-screen w-64 flex flex-col">
-				<!-- Header -->
-				<div class="p-4 w-full">
-					<div class="flex items-center gap-2">
-						<div
-							class="aspect-square w-8 rounded-box bg-primary grid place-content-center font-semibold text-primary-content">
-							B
-						</div>
-						<div class="text-xs">
-							<h2 class="font-semibold">{{ company.name }}</h2>
-                            <p>{{ branch.name }}</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- Scrollable Content -->
-				<div class="flex-1 overflow-y-auto py-2 space-y-4">
-					<div>
-						{% comment %} <h2 class="text-xs font-medium opacity-60 uppercase px-4">Landing</h2> {% endcomment %}
-						<ul class="menu w-full">
-							<li><a href="{% url 'branches:landing' branch.id %}">Landing</a></li>
-						</ul>
-					</div>
-					<div>
-						<h2 class="text-xs font-medium opacity-60 uppercase px-4">
-							Inventory
-						</h2>
-						<ul class="menu w-full">
-							<li><a href="{% url 'branches:sales' branch.id %}">Sales</a></li>
-							<li><a href="{% url 'branches:products' branch.id %}">Products</a></li>
-						</ul>
-					</div>
-				</div>
-
-				<!-- Footer -->
-				<div class="p-4 border-t border-base-300 text-sm text-base-content">
-					<div class="grid relative">
-						<div class="dropdown dropdown-top w-full">
-							<button
-								class="w-full bg-base-200 hover:bg-base-300 p-4 rounded-box transition-all cursor-pointer">
-								<div class="flex items-center space-x-2">
-									<div class="avatar avatar-placeholder">
-										<div
-											class="bg-secondary text-secondary-content w-8 rounded-full grid place-content-center">
-											<span class="text-xs"
-												>{{ request.user.profile.get_initials }}</span
-											>
-										</div>
-									</div>
-
-									<div class="grid flex-1">
-										<h2 class="font-semibold text-xs">
-											{{ request.user.profile.get_full_name }}
-										</h2>
-										<p class="text-xs opacity-60">
-											{{ request.user.email }}
-										</p>
-									</div>
-								</div>
-							</button>
-
-							<div
-								tabindex="0"
-								aria-label="Account options"
-								class="dropdown-content min-w-40 rounded-box bg-base-100 text-base-content shadow-sm">
-								<div class="p-4">
-									<div class="grid place-content-center text-center mb-4">
-										<p class="text-sm opacity-60">Confirm below to logout.</p>
-									</div>
-									<form action="{% url 'users:logout' %}" method="post">
-										{% csrf_token %}
-										<button class="btn btn-soft btn-error w-full">
-											Logout
-										</button>
-									</form>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="flex-1 flex flex-col p-1 relative" id="app-slot">
-			<button
-				type="button"
-				class="btn btn-square btn-sm text-lg btn-ghost absolute bottom-1 left-1 opacity-70"
-				@click="show_sidebar = !show_sidebar"
-				:title="show_sidebar ? 'Close sidebar' : 'Open sidebar'">
-				<span class="icon-panel-left-close" x-show="show_sidebar" x-cloak></span>
-				<span class="icon-panel-left-open" x-show="!show_sidebar" x-cloak></span>
-			</button>
-			<div
-				class="rounded-box bg-gradient-to-br from-[#F0F4F8] to-[#d6dadd] h-full w-full overflow-y-auto p-1 sm:p-2 md:p-4">
-				{{ slot }}
-			</div>
-		</div>
+        <div class="flex h-screen w-full">
+            <div class="h-screen grid fixed top-0 z-10 transition-all bg-base-content/30 md:bg-transparent md:static" :class="{ 'md:hidden': !show_sidebar, 'left-0 right-0': sm_show, 'left-[-100%]': !sm_show }">
+                <div class="h-screen w-64 flex flex-col bg-base-100">
+                    <!-- Header -->
+                    <div class="p-4 w-full">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="aspect-square w-8 rounded-box bg-primary grid place-content-center font-semibold text-primary-content">
+                                B
+                            </div>
+                            <div class="text-xs">
+                                <h2 class="font-semibold">{{ company.name }}</h2>
+                                <p>{{ branch.name }}</p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Scrollable Content -->
+                    <div class="flex-1 overflow-y-auto py-2 space-y-4">
+                        <div>
+                            {% comment %} <h2 class="text-xs font-medium opacity-60 uppercase px-4">Landing</h2> {% endcomment %}
+                            <ul class="menu w-full">
+                                <li><a href="{% url 'branches:landing' branch.id %}">Landing</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h2 class="text-xs font-medium opacity-60 uppercase px-4">
+                                Inventory
+                            </h2>
+                            <ul class="menu w-full">
+                                <li><a href="{% url 'branches:sales' branch.id %}">Sales</a></li>
+                                <li><a href="{% url 'branches:products' branch.id %}">Products</a></li>
+                            </ul>
+                        </div>
+                    </div>
+    
+                    <!-- Footer -->
+                    <div class="p-4 border-t border-base-300 text-sm text-base-content">
+                        <div class="grid relative">
+                            <div class="dropdown dropdown-top w-full">
+                                <button
+                                    class="w-full bg-base-200 hover:bg-base-300 p-4 rounded-box transition-all cursor-pointer">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="avatar avatar-placeholder">
+                                            <div
+                                                class="bg-secondary text-secondary-content w-8 rounded-full grid place-content-center">
+                                                <span class="text-xs"
+                                                    >{{ request.user.profile.get_initials }}</span
+                                                >
+                                            </div>
+                                        </div>
+    
+                                        <div class="grid flex-1">
+                                            <h2 class="font-semibold text-xs">
+                                                {{ request.user.profile.get_full_name }}
+                                            </h2>
+                                            <p class="text-xs opacity-60">
+                                                {{ request.user.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </button>
+    
+                                <div
+                                    tabindex="0"
+                                    aria-label="Account options"
+                                    class="dropdown-content min-w-40 rounded-box bg-base-100 text-base-content shadow-sm">
+                                    <div class="p-4">
+                                        <div class="grid place-content-center text-center mb-4">
+                                            <p class="text-sm opacity-60">Confirm below to logout.</p>
+                                        </div>
+                                        <form action="{% url 'users:logout' %}" method="post">
+                                            {% csrf_token %}
+                                            <button class="btn btn-soft btn-error w-full">
+                                                Logout
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button @click="sm_show = !sm_show;console.log(sm_show)" title="Menu button" class="hamburger-btn grid grid-flow-col cursor-pointer md:hidden z-20"
+                :aria-expanded="sm_show ? true : false">
+                <svg class="hamburger w-10" fill="none" viewbox="-10 -10 120 120">
+                    <path class="line" d="m 20 40 h 60 a 1 1 0 0 1 0 20 h -60 a 1 1 0 0 1 0 -40 h 30 v 70"></path>
+                </svg>
+                <div class="text-primary-content h-full grid content-center pr-2 text-sm">
+                    <span>Menu</span>
+                </div>
+            </button>
+    
+            <div class="flex-1 flex flex-col p-1 relative grid" id="app-slot">
+                {% comment %} <button
+                    type="button"
+                    class="btn btn-square btn-sm text-lg btn-ghost absolute bottom-1 left-1 opacity-70"
+                    @click="show_sidebar = !show_sidebar"
+                    :title="show_sidebar ? 'Close sidebar' : 'Open sidebar'">
+                    <span class="icon-panel-left-close" x-show="show_sidebar" x-cloak></span>
+                    <span class="icon-panel-left-open" x-show="!show_sidebar" x-cloak></span>
+                </button> {% endcomment %}
+                <div
+                    class="rounded-box bg-gradient-to-br from-[#F0F4F8] to-[#d6dadd] h-full w-full overflow-y-auto p-1 sm:p-2 md:p-4">
+                    {{ slot }}
+                </div>
+            </div>
+        </div>
 	</div>
 </c-base>
