@@ -2,7 +2,7 @@
 
 <c-base title="{{ title }}">
 	<div
-		class="h-screen bg-base-100"
+		class="h-screen w-full bg-base-100"
 		x-data="{
             pdf_loading: false,
             global_loading: false,
@@ -53,7 +53,7 @@
 				<span x-text="error"></span>
 			</div>
 		</div>
-        <div class="flex h-screen">
+        <div class="flex h-screen w-full">
             <div class="h-screen grid fixed top-0 z-10 transition-all bg-base-content/30 md:bg-transparent md:static" :class="{ 'md:hidden': !show_sidebar, 'left-0 right-0': sm_show, 'left-[-100%]': !sm_show }">
                 <div class="h-screen w-64 flex flex-col bg-base-100">
                     <!-- Header -->
@@ -154,15 +154,15 @@
                 </div>
             </button>
     
-            <div class="flex-1 flex flex-col p-1 relative" id="app-slot">
-                <button
+            <div class="flex-1 flex flex-col p-1 relative grid" id="app-slot">
+                {% comment %} <button
                     type="button"
                     class="btn btn-square btn-sm text-lg btn-ghost absolute bottom-1 left-1 opacity-70"
                     @click="show_sidebar = !show_sidebar"
                     :title="show_sidebar ? 'Close sidebar' : 'Open sidebar'">
                     <span class="icon-panel-left-close" x-show="show_sidebar" x-cloak></span>
                     <span class="icon-panel-left-open" x-show="!show_sidebar" x-cloak></span>
-                </button>
+                </button> {% endcomment %}
                 <div
                     class="rounded-box bg-gradient-to-br from-[#F0F4F8] to-[#d6dadd] h-full w-full overflow-y-auto p-1 sm:p-2 md:p-4">
                     {{ slot }}
