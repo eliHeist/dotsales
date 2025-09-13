@@ -197,7 +197,6 @@ class SalesFormView(LoginRequiredMixin, View):
                 "payments": [],
             }
 
-            print(sale_.items.all())
             for sale_item in sale_.items.all():
                 sale["sale_items"].append({
                     "id": sale_item.id,
@@ -213,7 +212,6 @@ class SalesFormView(LoginRequiredMixin, View):
                     "payment_method": payment.method,
                     "payment_date": payment.payment_date.strftime('%Y-%m-%d'),
                 })
-            print(sale)
             sale = json.dumps(sale).replace('"', "'")
         else:
             sale = None
@@ -258,8 +256,6 @@ class SalesFormView(LoginRequiredMixin, View):
         branch = company.branches.get(pk=bpk)
 
         data = request.POST
-        print(data)
-        print("\n\n")
 
         sale_id = kwargs.get("pk", None)
         date_str = data.get("date")
@@ -270,15 +266,12 @@ class SalesFormView(LoginRequiredMixin, View):
         item_batch_ids = data.getlist("item_batch_id")
         item_quantities = data.getlist("item_quantity")
 
-        print(item_ids, item_product_ids, item_batch_ids, item_quantities)
-
         payment_ids = data.getlist("payment_id")
         payment_dates = data.getlist("payment_date")
         payment_amounts = data.getlist("payment_amount")
         payment_methods = data.getlist("payment_method")
 
         with transaction.atomic():
-            print("sale")
             # create or update sale
             if sale_id:
                 sale = branch.sales.get(pk=sale_id)
@@ -290,11 +283,8 @@ class SalesFormView(LoginRequiredMixin, View):
                     branch=branch
                 )
 
-            print("items")
             # create or update sale items
             for item_id, item_product_id, item_batch_id, item_quantity in zip(item_ids, item_product_ids, item_batch_ids, item_quantities):
-                print("\n\n")
-                print("Item 1", item_id, item_product_id, item_batch_id, item_quantity)
                 if item_id != 'new':
                     sale_item = sale.items.get(pk=item_id)
                     sale_item.product_id = item_product_id
@@ -308,9 +298,7 @@ class SalesFormView(LoginRequiredMixin, View):
                     quantity=float(item_quantity.replace(",", "")),
                     sale=sale
                 )
-                print(saley)
 
-            print("payments")
             # create or update sale payments
             for payment_id, payment_date, payment_amount, payment_method in zip(payment_ids, payment_dates, payment_amounts, payment_methods):
                 if payment_id != 'new':
