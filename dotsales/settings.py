@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'ninja_extra',
     'ninja_jwt',
+    'ninja_jwt.token_blacklist',
     "corsheaders",
 
     "django_unicorn",
@@ -215,6 +216,10 @@ NINJA_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "BLACKLIST_AFTER_ROTATION": True,
     "ROTATE_REFRESH_TOKENS": True,
+    "TOKEN_OBTAIN_PAIR_WEBCONTROLLER_COOKIE": True,
+    "TOKEN_REFRESH_WEBCONTROLLER_COOKIE": True,
+    "JWT_AUTH_COOKIE_SECURE": True, # Use for production over HTTPS
+    "JWT_AUTH_COOKIE_SAMESITE": "Lax",
 }
 
 LOGGING = {
