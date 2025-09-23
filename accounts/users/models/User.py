@@ -106,4 +106,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         if not self.is_active:
             return False
 
-        return True if self.is_company_admin else super().has_perm(self, obj)
+        return True if self.is_company_admin else self.check_cperm(perm, obj)
+    
+    def check_cperm(self, perm, obj=None):
+        # check in custom groups
+        if perm in self.get_cgroup_permissions(self, obj):
+            return True
+        return False
+    
+    def get_cgroup_permissions(self, user_obj, obj=None):
+        for group in user_obj.c_groups.all():
+            for perm in group.permissions.all():
+                yield f"{perm.content_type.app_label}.{perm.codename}"

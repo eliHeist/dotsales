@@ -1,4 +1,4 @@
-{% load static %}
+{% load static mytags %}
 
 <c-base title="{{ title }}">
 	<div
@@ -75,8 +75,12 @@
                                 Inventory
                             </h2>
                             <ul class="menu w-full">
+                                {% if request.user|has_perm:"sales.view_sale" %}
                                 <li><a href="{% url 'branches:sales' branch.id %}">Sales</a></li>
+                                {% endif %}
+                                {% if request.user|has_perm:"products.view_branchproduct" %}
                                 <li><a href="{% url 'branches:products' branch.id %}">Products</a></li>
+                                {% endif %}
                             </ul>
                         </div>
                     </div>

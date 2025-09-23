@@ -42,7 +42,7 @@
                 <button type="button" class="btn btn-" onclick="edit_modal.showModal()">Add User</button>
                 <dialog id="edit_modal" class="modal">
                     <div class="modal-box max-h-10/12">
-                        <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+                        <form action="{% url 'company:users' %}?upk" method="post" class="grid sm:grid-cols-2 gap-4">
                             {% csrf_token %}
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">First Name *</legend>
@@ -147,7 +147,9 @@
 					<th>Name</th>
 					<th class="hidden md:table-cell">Email</th>
 					<th class="hidden md:table-cell">Contacts</th>
+                    {% if request.user|has_perm:"users.change_user" %}
 					<th></th>
+                    {% endif %}
 				</tr>
 			</thead>
 			<tbody>
@@ -178,12 +180,13 @@
 							<div class="text-sm">{{ user.profile.phone_2 }}</div>
 						</div>
 					</td>
+                    {% if request.user|has_perm:"users.change_user" %}
 					<th>
 						<div class="flex justify-end">
 							<button type="button" class="btn btn-ghost btn-xs" onclick="edit_modal_{{ user.pk }}.showModal()">Edit</button>
 							<dialog id="edit_modal_{{ user.pk }}" class="modal">
 								<div class="modal-box max-h-10/12">
-									<form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+									<form action="{% url 'company:users' %}?upk={{ user.pk }}" method="post" class="grid sm:grid-cols-2 gap-4">
 										{% csrf_token %}
                                         <input type="hidden" name="pk" value="{{ user.pk }}">
 										<fieldset class="fieldset">
@@ -281,6 +284,7 @@
 							</dialog>
 						</div>
 					</th>
+                    {% endif %}
 				</tr>
 				{% endfor %}
 			</tbody>
