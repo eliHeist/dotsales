@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views import View
 
+from accounts.c_auth.models import CGroup
 from accounts.companies.models import Branch
 from accounts.users.models import UserProfile
 # Create your views here.
@@ -54,10 +55,12 @@ class UsersListView(LoginRequiredMixin, View):
 
         users = company.users.all().prefetch_related("profile")
         error_message = kwargs.get("error_message", None)
+        roles = CGroup.objects.all()
 
         context = {
             "users": users,
-            "error_message": error_message
+            "error_message": error_message,
+            "roles": roles
         }
         
         return render(request, 'company/users.html', context)

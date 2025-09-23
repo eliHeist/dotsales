@@ -15,6 +15,14 @@ class Sale(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="CREDIT")
     due_date = models.DateField(blank=True, null=True)
 
+    class Meta:
+        ordering = ["-date"]
+        verbose_name = "Sale"
+        verbose_name_plural = "Sales"
+        permissions = [
+            ("analyze_profit", "Can analyze profit")
+        ]
+
     def __str__(self):
         return f"Sale {self.id} - {self.branch.name} - {self.date}"
 

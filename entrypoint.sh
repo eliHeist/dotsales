@@ -10,7 +10,7 @@ python manage.py migrate
 # python manage.py collectstatic --noinput
 
 # Optional: Your custom setup
-# python manage.py datasetup
+python manage.py BaseCAuthSetup
 
 # Create superuser if not exists
 echo "Creating default superuser (test@example.com)..."
