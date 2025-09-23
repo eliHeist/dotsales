@@ -100,3 +100,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def get_full_name(self):
         return self.profile.get_full_name() if self.profile else self.email
+    
+    def has_cperm(self, perm, obj=None):
+        # Skip inactive users
+        if not self.is_active:
+            return False
+
+        return True if self.is_company_admin else super().has_perm(self, obj)

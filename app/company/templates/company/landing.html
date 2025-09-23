@@ -1,119 +1,25 @@
-<c-layout>
-    <header class="bg-base-100 rounded-box p-4">
-        <h1 class="text-xl font-semibold mb-2">{{ company.name }}</h1>
-        <div class="flex justify-between">
-            <div class="text-sm">
-                <p>{{ company.contact }}</p>
-                <p>{{ company.address }}</p>
-            </div>
-            {% if ADMIN_MODE %}
-            <div>
-                <!-- Open the modal using ID.showModal() method -->
-                <button class="btn" onclick="my_modal_2.showModal()">Create a new Branch</button>
-                <dialog id="my_modal_2" class="modal">
-                    <div class="modal-box">
-                        <form action="{% url 'company:landing' %}?action=create_branch" method="post">
-                            {% csrf_token %}
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Name *</legend>
-                                <input type="text" class="input w-full" name="branch_name" required />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Email</legend>
-                                <input type="email" class="input w-full" name="email" />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Phone</legend>
-                                <input type="tel" class="input w-full" name="phone_1" />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Other Phone</legend>
-                                <input type="tel" class="input w-full" name="phone_2" />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Location</legend>
-                                <input type="text" class="input w-full" name="location" />
-                            </fieldset>
-                            <div class="modal-action">
-                                <!-- if there is a button in form, it will close the modal -->
-                                <button class="btn btn-primary">Create</button>
-                            </div>
-                        </form>
-                    </div>
-                    <form method="dialog" class="modal-backdrop">
-                        <button>close</button>
-                    </form>
-                </dialog>
-            </div>
+<c-base title="Select Branch">
+    <div class="p-4">
+        <header class="bg-base-100 rounded-box p-4">
+            <h1 class="text-xl font-semibold mb-2">{{ company.name }}</h1>
+            
+            {% if branches %}
+            <p>Select a Branch</p>
             {% endif %}
-        </div>
-    </header>
-    
-    <div class="grid gap-4 mt-4 md:grid-cols-2">
-        {% for branch in branches %}
-        <div class="card bg-base-100">
-            <div class="card-body relative">
-                <div class="card-title">{{ branch.name }}</div>
-                <div>
-                    {% if branch.email %}
-                    <p>{{ branch.email }}</p>
-                    {% endif %}
-                    {% if branch.phone_1 %}
-                    <p>{{ branch.phone_1 }}</p>
-                    {% endif %}
-                    {% if branch.phone_2 %}
-                    <p>{{ branch.phone_2 }}</p>
-                    {% endif %}
-                    {% if branch.location %}
-                    <p>{{ branch.location }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="flex gap-4">
-                    {% if ADMIN_MODE %}
-                    <button class="btn" onclick="branch_modal_{{ branch.pk }}_edit.showModal()">Edit</button>
-                    {% endif %}
-                    <a class="btn btn-neutral" href="{% url 'branches:landing' branch.id %}">View</a>
-                </div>
-                {% if ADMIN_MODE %}
-                <dialog id="branch_modal_{{ branch.pk }}_edit" class="modal">
-                    <div class="modal-box">
-                        <form action="{% url 'company:landing' %}?action=edit_branch" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="pk" value="{{ branch.pk }}">
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Name *</legend>
-                                <input type="text" value="{% if branch.name %}{{ branch.name }}{% endif %}" class="input w-full" name="branch_name" required />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Email</legend>
-                                <input type="email" value="{% if branch.email %}{{ branch.email }}{% endif %}" class="input w-full" name="email" />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Phone</legend>
-                                <input type="tel" value="{% if branch.phone_1 %}{{ branch.phone_1 }}{% endif %}" class="input w-full" name="phone_1" />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Other Phone</legend>
-                                <input type="tel" value="{% if branch.phone_2 %}{{ branch.phone_2 }}{% endif %}" class="input w-full" name="phone_2" />
-                            </fieldset>
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Location</legend>
-                                <input type="text" value="{% if branch.location %}{{ branch.location }}{% endif %}" class="input w-full" name="location" />
-                            </fieldset>
-                            <div class="modal-action">
-                                <!-- if there is a button in form, it will close the modal -->
-                                <button class="btn btn-primary">Update</button>
-                            </div>
-                        </form>
+        </header>
+        
+        <div class="flex flex-col gap-4 mt-4 md:flex-row justify-around">
+            {% for branch in branches %}
+            <a href="{% url 'branches:landing' branch.id %}">
+                <div class="card bg-base-200 outline outline-1 outline-base-300 hover:outline-primary transition-all">
+                    <div class="card-body relative">
+                        <div class="card-title link">{{ branch.name }}</div>
                     </div>
-                    <form method="dialog" class="modal-backdrop">
-                        <button>close</button>
-                    </form>
-                </dialog>
-                {% endif %}
-            </div>
+                </div>
+            </a>
+            {% empty %}
+            <p>No branches available. Contact your administrator.</p>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-</c-layout>
+</c-base>

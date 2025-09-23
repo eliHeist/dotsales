@@ -17,6 +17,8 @@ class UserProfile(models.Model):
     phone_1 = models.CharField(_("Phone 1"), max_length=15, blank=True, null=True)
     phone_2 = models.CharField(_("Phone 2"), max_length=15, blank=True, null=True)
 
+    admin_access = models.BooleanField(default=False)
+
     def __str__(self):
         return f"Profile of {self.user.email}"
     

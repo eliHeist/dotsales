@@ -6,17 +6,11 @@ class CPermissionBackend(BaseBackend):
         if not user_obj.is_active:
             return False
         
+        if user_obj.is_company_admin:
+            return True
+        
         if super().has_perm(user_obj, perm, obj):
             return True
-
-        # 🔍 Custom logic
-        if hasattr(user_obj, 'profile') and perm in user_obj.profile.extra_permissions:
-            return True
-
-        if user_obj.role == 'admin' and perm.startswith('app.'):
-            return True
-
-        return False
 
     def get_cgroup_permissions(self, user_obj, obj=None):
         for group in user_obj.c_groups.all():

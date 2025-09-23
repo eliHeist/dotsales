@@ -1,3 +1,5 @@
+{% load mytags %}
+
 <c-layout>
 	<div class="stats stats-vertical md:stats-horizontal w-full bg-base-100 shadow mb-4">
 		<div class="stat">
@@ -20,6 +22,7 @@
 			<div class="stat-desc">21% more than last month</div>
 			{% endcomment %}
 		</div>
+        {% if request.user|has_perm:"users.add_user" %}
 		<div class="stat">
 			<div class="stat-figure text-primary">
 				<svg
@@ -92,8 +95,8 @@
                             </fieldset>
                             <fieldset class="fieldset sm:col-span-2">
                                 <label class="label">
-                                    <input name="is_company_admin" type="checkbox" class="toggle" />
-                                    Admin Privilege
+                                    <input name="admin_access" type="checkbox" class="toggle" />
+                                    Admin Access: Signifies if a user can access company dashboard 
                                 </label>
                             </fieldset>
                             <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
@@ -103,6 +106,17 @@
                                     <label class="label">
                                         <input type="checkbox" value="{{ branch.pk }}" class="checkbox" name="accessible_branches" />
                                         <span>{{ branch.name }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
+                                <legend class="fieldset-legend">User Roles</legend>
+                                <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
+                                    {% for role in roles %}
+                                    <label class="label">
+                                        <input type="checkbox" value="{{ role.pk }}" class="checkbox" name="user_roles" />
+                                        <span>{{ role.description }}</span>
                                     </label>
                                     {% endfor %}
                                 </div>
@@ -123,6 +137,7 @@
 			<div class="stat-desc">21% more than last month</div>
 			{% endcomment %}
 		</div>
+        {% endif %}
 	</div>
 
 	<div class="overflow-x-auto rounded-box bg-base-100 w-full">
@@ -225,8 +240,8 @@
 										</fieldset>
 										<fieldset class="fieldset sm:col-span-2">
 											<label class="label">
-                                                <input name="is_company_admin" type="checkbox" {% if user.is_company_admin %}checked="checked"{% endif %} class="toggle" />
-                                                Admin Privilege
+                                                <input name="admin_access" type="checkbox" {% if user.profile.admin_access %}checked="checked"{% endif %} class="toggle" />
+                                                Admin Access: Signifies if a user can access company dashboard 
                                             </label>
 										</fieldset>
 										<fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
@@ -236,6 +251,19 @@
                                                 <label class="label">
                                                     <input type="checkbox" value="{{ branch.pk }}" class="checkbox"  name="accessible_branches" {% if branch in user.accessible_branches.all %}checked="checked"{% endif %} />
                                                     <span>{{ branch.name }}</span>
+                                                </label>
+                                                {% endfor %}
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
+                                            <legend class="fieldset-legend">User Roles</legend>
+                                            <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
+                                                {% for role in roles %}
+                                                <label class="label">
+                                                    <input type="checkbox" value="{{ role.pk }}" class="checkbox" 
+                                                    {% if role in user.c_groups.all %}checked="checked"{% endif %}
+                                                    name="user_roles" />
+                                                    <span>{{ role.description }}</span>
                                                 </label>
                                                 {% endfor %}
                                             </div>
@@ -256,14 +284,6 @@
 				</tr>
 				{% endfor %}
 			</tbody>
-			<tfoot>
-				<tr>
-					<th>Name</th>
-					<th class="hidden md:table-cell">Email</th>
-					<th class="hidden md:table-cell">Contacts</th>
-					<th></th>
-				</tr>
-			</tfoot>
 		</table>
 	</div>
 </c-layout>
