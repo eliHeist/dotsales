@@ -70,6 +70,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    c_groups = models.ManyToManyField("c_auth.CGroup", blank=True)
+
     company = models.ForeignKey("companies.Company", on_delete=models.CASCADE, related_name="users", null=True, blank=True)
     accessible_branches = models.ManyToManyField("companies.Branch", blank=True, related_name="users_with_access")
 
