@@ -1,14 +1,8 @@
 {% load mytags %}
 
 <c-layout2>
+    <h1 class="text-2xl font-semibold mb-4">{{ product.name }}</h1>
 	<div class="stats stats-vertical md:stats-horizontal w-full shadow bg-base-100 mb-4">
-		<div class="stat">
-			<div class="stat-title uppercase font-semibold">
-				{% if product.product_code %} {{ product.product_code }} {% endif %}
-			</div>
-			<div class="stat-value text-primary">{{ product.name }}</div>
-			<div class="stat-desc">{{ product.unit_price|add_commas }}</div>
-		</div>
 		<div class="stat">
 			<div class="stat-title uppercase font-semibold">Selling Price AVG</div>
 			<div class="stat-value text-secondary">{{ average_price|add_commas }}</div>
@@ -32,12 +26,12 @@
 		</div>
 	</div>
 
-    <div class="action-bar p-2 bg-base-100 rounded-box mb-4 flex justify-between">
+    <div class="action-bar p-0 overflow-hidden outline rounded-full mb-4 flex justify-between">
         <div></div>
         <div>
-            <button class="btn btn-primary" title="Add Stock" onclick="qty_modal.showModal()">
-                <span class="text-xl">&#43;</span>
-                <span>Add stock</span>
+            <button class="btn btn-neutral" title="Add Stock" onclick="qty_modal.showModal()">
+                <i class='bx  bx-plus'  ></i> 
+                <span>Re-stock</span>
             </button>
         </div>
     </div>
@@ -87,12 +81,13 @@
         </form>
     </dialog>
 
+    {% if request.user|has_perm:"stock.view_stockbatch" %}
 	<ul class="list bg-base-100 rounded-box shadow-md">
 		<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Previous Stock ins</li>
 
 		{% for batch in stock_batches %}
 		<li class="list-row">
-            <div class="text-4xl font-thin opacity-30 tabular-nums">
+            <div class="text-3xl font-thin opacity-30 tabular-nums">
                 {{ batch.pk }}
             </div>
 			<div class="list-col-grow">
@@ -101,25 +96,15 @@
                     <span class="text-xs opacity-60 md:hidden">{{ batch.get_cost|add_commas }}</span>
                 </div>
 				<div class="text-xs uppercase font-semibold opacity-60 hidden md:block">{{ batch.get_cost|add_commas }}</div>
-                <div class="md:hidden mt-2">
-                    <div class="flex justify-between">
+                <div class="text-xs md:hidden mt-2">
+                    <div class="flex gap-8">
                         <div class="flex items-center gap-1 flex-row-reverse">
-                            <div class="font-semibold">{{ batch.get_balance.normalize }}</div>
-                            <div class="text-xs uppercase font-semibold opacity-60">BAL</div>
+                            <div class="font-semibold">{{ batch.get_balance.normalize }} / {{ batch.quantity.normalize }}</div>
+                            <div class="uppercase font-semibold opacity-60">QTY</div>
                         </div>
-                        <div class="flex items-center gap-1 flex-row-reverse">
-                            <div class="font-semibold">{{ batch.quantity.normalize }}</div>
-                            <div class="text-xs uppercase font-semibold opacity-60">QTY</div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
                         <div class="flex items-center gap-1 flex-row-reverse">
                             <div class="font-semibold">{{ batch.get_selling_price|add_commas }}</div>
-                            <div class="text-xs uppercase font-semibold opacity-60">SELLING</div>
-                        </div>
-                        <div class="flex items-center gap-1 flex-row-reverse">
-                            <div class="font-semibold">{{ batch.get_worth|add_commas }}</div>
-                            <div class="text-xs uppercase font-semibold opacity-60">WORTH</div>
+                            <div class="text-xs uppercase font-semibold opacity-60">PRICE</div>
                         </div>
                     </div>
                 </div>
@@ -145,10 +130,13 @@
 				<span class="material-symbols-outlined">edit</span>
 			</button>
             {% endif %} {% endcomment %}
-			<button class="btn btn-square btn-ghost" onclick="qty_modal_{{ batch.pk }}.showModal()">
-				<span class="material-symbols-outlined">edit</span>
+            {% if request.user|has_perm:"stock.add_stockbatch" %}
+			<button class="btn btn-sm text-lg btn-square btn-ghost" onclick="qty_modal_{{ batch.pk }}.showModal()" title="Edit Stock">
+				<i class='bx  bx-edit'  ></i> 
 			</button>
+            {% endif %}
 		</li>
+        {% if request.user|has_perm:"stock.add_stockbatch" %}
         <dialog id="qty_modal_{{ batch.pk }}" class="modal">
             <div class="modal-box max-h-10/12">
                 <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
@@ -193,6 +181,8 @@
                 <button>close</button>
             </form>
         </dialog>
+        {% endif %}
 		{% endfor %}
 	</ul>
+    {% endif %}
 </c-layout2>

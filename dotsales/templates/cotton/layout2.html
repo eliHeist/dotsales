@@ -52,12 +52,14 @@
                     <div class="p-4 w-full">
                         <div class="flex items-center gap-2">
                             <div
-                                class="aspect-square w-8 rounded-box bg-primary grid place-content-center font-semibold text-primary-content">
+                                class="aspect-square w-8 rounded-box bg-neutral grid place-content-center font-semibold text-neutral-content">
                                 B
                             </div>
                             <div class="text-xs">
-                                <h2 class="font-semibold">{{ company.name }}</h2>
-                                <p>{{ branch.name }}</p>
+                                <a {% if user.profile.admin_access %}href="{% url 'company:branches' %}" class="link"{% endif %}>
+                                    <h2>{{ company.name }}</h2>
+                                </a>
+                                <p class="font-semibold">{{ branch.name }}</p>
                             </div>
                         </div>
                     </div>
