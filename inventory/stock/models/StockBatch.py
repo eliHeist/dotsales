@@ -12,6 +12,7 @@ class StockBatch(models.Model):
 
     get_cost = lambda self: int(self.cost)
     get_selling_price = lambda self: int(self.selling_price)
+    get_item_cost = lambda self: int(self.cost / self.quantity) if self.quantity else 0
 
     class Meta:
         # unique_together = ("branch", "product", "purchase_date")

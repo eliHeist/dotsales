@@ -40,6 +40,21 @@ class Sale(models.Model):
     @property
     def balance(self):
         return self.total_amount - self.amount_paid
+    
+    @property
+    def total_cost(self):
+        return sum(item.get_cost() for item in self.items.all())
+    
+    @property
+    def projected_profit(self):
+        return sum(item.expected_profit() for item in self.items.all())
+    
+    @property
+    def projected_income(self):
+        return sum(item.expected_income() for item in self.items.all())
+    
+    current_income = lambda self: self.amount_paid
+    current_profit = lambda self: self.amount_paid - self.total_cost
 
     def update_status(self):
         if self.balance <= 0:

@@ -10,3 +10,12 @@ class SaleItem(models.Model):
 
     def line_total(self):
         return int(self.quantity * self.stock_batch.selling_price)
+    
+    def get_cost(self):
+        return int(self.quantity * self.stock_batch.get_item_cost())
+    
+    def expected_income(self):
+        return int(self.quantity * self.stock_batch.selling_price)
+    
+    def expected_profit(self):
+        return self.expected_income() - self.get_cost()

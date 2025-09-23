@@ -2,7 +2,7 @@ from datetime import datetime, date
 import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views import View
 from django.db import transaction
 
@@ -316,3 +316,46 @@ class SalesFormView(LoginRequiredMixin, View):
                 )
 
         return redirect(reverse_lazy('branches:sales', kwargs={'bpk': bpk}))
+
+
+class SalesAnalyticsView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "sales.analyze_profit"
+    def get(self, request, bpk):
+        user = request.user
+        company = user.company
+        branch = company.branches.get(pk=bpk)
+
+        today = date.today()
+
+        # filter sales by date range that is passed as query params, default to current day
+        start_date = request.GET.get("start_date", today)
+        end_date = request.GET.get("end_date", today)
+
+        sales = branch.sales.filter(date__range=[start_date, end_date])
+        # get the total income, total debt, total number of sales, profit and projected profit
+        total_income = sum(sale.amount_paid for sale in sales)
+        total_debt = sum(sale.balance for sale in sales)
+        total_sales = sales.count()
+        total_items = sum(sale.items.count() for sale in sales)
+        total_cost = sum(sale.total_cost for sale in sales)
+        total_profit = sum(sale.current_profit() for sale in sales)
+        projected_profit = sum(sale.projected_profit for sale in sales)
+        projected_income = sum(sale.projected_income for sale in sales)
+
+        context = {
+            'branch': branch,
+            'start_date': start_date,
+            'end_date': end_date,
+            'sales': sales,
+
+            'total_income': total_income,
+            'total_debt': total_debt,
+            'total_sales': total_sales,
+            'total_items': total_items,
+            'total_cost': total_cost,
+            'total_profit': total_profit,
+            'projected_profit': projected_profit,
+            'projected_income': projected_income,
+        }
+        
+        return render(request, 'branches/sales_analytics.html', context)

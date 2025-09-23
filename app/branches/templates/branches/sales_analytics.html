@@ -1,0 +1,109 @@
+{% load mytags %}
+
+<c-layout2>
+	<main class="min-h-screen">
+
+		<div class="">
+			<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+				<h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">
+					{{ branch.name }} Sales Analytics
+				</h1>
+			</div>
+
+			<!-- Date Filter Form -->
+			<div class="bg-white rounded-lg p-6 mb-6">
+				<form
+					method="get"
+					class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <label for="start_date" class="input">
+                        <span class="font-semibold">From</span>
+                        <input name="start_date" id="start_date" type="date" value="{{ start_date }}" class="grow">
+                    </label>
+                    <label for="end_date" class="input">
+                        <span class="font-semibold">To</span>
+                        <input name="end_date" id="end_date" type="date" value="{{ end_date }}" class="grow">
+                    </label>
+					<button type="submit" class="btn btn-primary w-full sm:w-auto">Filter</button>
+				</form>
+			</div>
+
+            <div class="stats w-full stats-vertical sm:stats-horizontal bg-base-100 outline outline-1 outline-base-300 rounded-lg mb-4">
+                {% comment %} Income {% endcomment %}
+                <div class="stat">
+                    <div class="stat-title">Income</div>
+                    <div class="stat-value">{{ total_income|add_commas }}</div>
+                    <div class="stat-desc text-secondary items-center flex gap-2" title="Projected Income">
+                        <i class="bx bx-trending-up bx-sm"></i>
+                        {{ projected_income|add_commas }}</div>
+                </div>
+                {% comment %} profit {% endcomment %}
+                <div class="stat">
+                    <div class="stat-title">Profit</div>
+                    <div class="stat-value">{{ total_profit|add_commas }}</div>
+                    <div class="stat-desc text-secondary items-center flex gap-2" title="Projected Income">
+                        <i class="bx bx-trending-up bx-sm"></i>
+                        {{ projected_profit|add_commas }}</div>
+                </div>
+                {% comment %} sales {% endcomment %}
+                <div class="stat">
+                    <div class="stat-title">Sales</div>
+                    <div class="stat-value">{{ total_sales|add_commas }}</div>
+                    <div class="stat-desc text-secondary items-center flex gap-2" title="Items sold">
+                        <i class="bx bx-trending-up bx-sm"></i>
+                        {{ total_items|add_commas }} Items
+                    </div>
+                </div>
+                {% comment %} debt {% endcomment %}
+                <div class="stat">
+                    <div class="stat-title">Debt</div>
+                    <div class="stat-value">{{ total_debt|add_commas }}</div>
+                    <div class="stat-desc text-secondary items-center flex gap-2" title="Items sold">
+                        {% comment %} <i class="bx bx-trending-up bx-sm"></i>
+                        {{ total_items|add_commas }} Items {% endcomment %}
+                    </div>
+                </div>
+            </div>
+
+			<!-- Sales Table Section -->
+			<div class="bg-white rounded-lg p-4">
+				<h3 class="text-xl font-semibold text-gray-800 mb-4">Sales Details</h3>
+				<div class="overflow-x-auto">
+					<table class="table w-full">
+						<thead>
+							<tr>
+								<th class="text-left text-sm font-medium text-gray-500">Date</th>
+								<th class="text-right text-sm font-medium text-gray-500">Income</th>
+								<th class="text-right text-sm font-medium text-gray-500">Debt</th>
+								<th class="text-right text-sm font-medium text-gray-500">Cost</th>
+								<th class="text-right text-sm font-medium text-gray-500">Profit</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for sale in sales %}
+							<tr>
+								<td class="whitespace-nowrap">{{ sale.date }}</td>
+								<td class="whitespace-nowrap text-right">
+									{{ sale.amount_paid|add_commas }}
+								</td>
+								<td class="whitespace-nowrap text-right">{{ sale.balance|add_commas }}</td>
+								<td class="whitespace-nowrap text-right">
+									{{ sale.total_cost|add_commas }}
+								</td>
+								<td class="whitespace-nowrap text-right">
+									{{ sale.current_profit|add_commas }}
+								</td>
+							</tr>
+							{% empty %}
+							<tr>
+								<td colspan="5" class="text-center py-4 text-gray-500">
+									No sales found for this period.
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</main>
+</c-layout2>
