@@ -17,19 +17,6 @@ def index(list_, index):
 def add_commas(value):
     return f"{value:,}"
 
-@register.filter
-def get_grade(mark):
-    if mark >= 90:
-        return 'A'
-    elif mark >= 75:
-        return 'B'
-    elif mark >= 60:
-        return 'C'
-    elif mark >= 40:
-        return 'D'
-    else:
-        return 'E'
-
 # get accurate numbers for pagination pages
 @register.filter
 def get_num_by_page(counter, page_number, page_size=20):
@@ -39,4 +26,7 @@ def get_num_by_page(counter, page_number, page_size=20):
         return (page_number - 1) * page_size + counter
     except (ValueError, TypeError):
         return counter  # fallback if something goes wrong
-    
+
+@register.filter
+def has_perm(user, perm_name):
+    return user.has_cperm(perm_name)

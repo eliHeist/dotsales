@@ -2,7 +2,7 @@ from datetime import datetime, date
 import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views import View
 from django.db import transaction
 
@@ -197,7 +197,6 @@ class SalesFormView(LoginRequiredMixin, View):
                 "payments": [],
             }
 
-            print(sale_.items.all())
             for sale_item in sale_.items.all():
                 sale["sale_items"].append({
                     "id": sale_item.id,
@@ -213,7 +212,6 @@ class SalesFormView(LoginRequiredMixin, View):
                     "payment_method": payment.method,
                     "payment_date": payment.payment_date.strftime('%Y-%m-%d'),
                 })
-            print(sale)
             sale = json.dumps(sale).replace('"', "'")
         else:
             sale = None
@@ -258,8 +256,6 @@ class SalesFormView(LoginRequiredMixin, View):
         branch = company.branches.get(pk=bpk)
 
         data = request.POST
-        print(data)
-        print("\n\n")
 
         sale_id = kwargs.get("pk", None)
         date_str = data.get("date")
@@ -270,15 +266,12 @@ class SalesFormView(LoginRequiredMixin, View):
         item_batch_ids = data.getlist("item_batch_id")
         item_quantities = data.getlist("item_quantity")
 
-        print(item_ids, item_product_ids, item_batch_ids, item_quantities)
-
         payment_ids = data.getlist("payment_id")
         payment_dates = data.getlist("payment_date")
         payment_amounts = data.getlist("payment_amount")
         payment_methods = data.getlist("payment_method")
 
         with transaction.atomic():
-            print("sale")
             # create or update sale
             if sale_id:
                 sale = branch.sales.get(pk=sale_id)
@@ -290,11 +283,8 @@ class SalesFormView(LoginRequiredMixin, View):
                     branch=branch
                 )
 
-            print("items")
             # create or update sale items
             for item_id, item_product_id, item_batch_id, item_quantity in zip(item_ids, item_product_ids, item_batch_ids, item_quantities):
-                print("\n\n")
-                print("Item 1", item_id, item_product_id, item_batch_id, item_quantity)
                 if item_id != 'new':
                     sale_item = sale.items.get(pk=item_id)
                     sale_item.product_id = item_product_id
@@ -308,9 +298,7 @@ class SalesFormView(LoginRequiredMixin, View):
                     quantity=float(item_quantity.replace(",", "")),
                     sale=sale
                 )
-                print(saley)
 
-            print("payments")
             # create or update sale payments
             for payment_id, payment_date, payment_amount, payment_method in zip(payment_ids, payment_dates, payment_amounts, payment_methods):
                 if payment_id != 'new':
@@ -328,3 +316,46 @@ class SalesFormView(LoginRequiredMixin, View):
                 )
 
         return redirect(reverse_lazy('branches:sales', kwargs={'bpk': bpk}))
+
+
+class SalesAnalyticsView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "sales.analyze_profit"
+    def get(self, request, bpk):
+        user = request.user
+        company = user.company
+        branch = company.branches.get(pk=bpk)
+
+        today = date.today()
+
+        # filter sales by date range that is passed as query params, default to current day
+        start_date = request.GET.get("start_date", today)
+        end_date = request.GET.get("end_date", today)
+
+        sales = branch.sales.filter(date__range=[start_date, end_date])
+        # get the total income, total debt, total number of sales, profit and projected profit
+        total_income = sum(sale.amount_paid for sale in sales)
+        total_debt = sum(sale.balance for sale in sales)
+        total_sales = sales.count()
+        total_items = sum(sale.items.count() for sale in sales)
+        total_cost = sum(sale.total_cost for sale in sales)
+        total_profit = sum(sale.current_profit() for sale in sales)
+        projected_profit = sum(sale.projected_profit for sale in sales)
+        projected_income = sum(sale.projected_income for sale in sales)
+
+        context = {
+            'branch': branch,
+            'start_date': start_date,
+            'end_date': end_date,
+            'sales': sales,
+
+            'total_income': total_income,
+            'total_debt': total_debt,
+            'total_sales': total_sales,
+            'total_items': total_items,
+            'total_cost': total_cost,
+            'total_profit': total_profit,
+            'projected_profit': projected_profit,
+            'projected_income': projected_income,
+        }
+        
+        return render(request, 'branches/sales_analytics.html', context)

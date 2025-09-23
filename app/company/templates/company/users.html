@@ -1,45 +1,22 @@
+{% load mytags %}
+
 <c-layout>
 	<div class="stats stats-vertical md:stats-horizontal w-full bg-base-100 shadow mb-4">
 		<div class="stat">
-			<div class="stat-figure text-primary">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					class="inline-block h-8 w-8 stroke-current">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-				</svg>
-			</div>
 			<div class="stat-title">Total Users</div>
 			<div class="stat-value text-primary">{{ users.count }}</div>
 			{% comment %}
 			<div class="stat-desc">21% more than last month</div>
 			{% endcomment %}
 		</div>
+        {% if request.user|has_perm:"users.add_user" %}
 		<div class="stat">
-			<div class="stat-figure text-primary">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					class="inline-block h-8 w-8 stroke-current">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-				</svg>
-			</div>
 			<div class="stat-title">User Actions</div>
 			<div class="mt-auto">
                 <button type="button" class="btn btn-" onclick="edit_modal.showModal()">Add User</button>
                 <dialog id="edit_modal" class="modal">
                     <div class="modal-box max-h-10/12">
-                        <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+                        <form action="{% url 'company:users' %}?upk" method="post" class="grid sm:grid-cols-2 gap-4">
                             {% csrf_token %}
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">First Name *</legend>
@@ -92,9 +69,12 @@
                             </fieldset>
                             <fieldset class="fieldset sm:col-span-2">
                                 <label class="label">
-                                    <input name="is_company_admin" type="checkbox" class="toggle" />
-                                    Admin Privilege
+                                    <input name="admin_access" type="checkbox" class="toggle" />
+                                    Admin Access
                                 </label>
+                                <p class="text-xs opacity-60 font-thin">
+                                    Signifies if a user can access company dashboard 
+                                </p>
                             </fieldset>
                             <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
                                 <legend class="fieldset-legend">Accessible branches</legend>
@@ -103,6 +83,17 @@
                                     <label class="label">
                                         <input type="checkbox" value="{{ branch.pk }}" class="checkbox" name="accessible_branches" />
                                         <span>{{ branch.name }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
+                                <legend class="fieldset-legend">User Roles</legend>
+                                <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
+                                    {% for role in roles %}
+                                    <label class="label">
+                                        <input type="checkbox" value="{{ role.pk }}" class="checkbox" name="user_roles" />
+                                        <span>{{ role.description }}</span>
                                     </label>
                                     {% endfor %}
                                 </div>
@@ -123,6 +114,7 @@
 			<div class="stat-desc">21% more than last month</div>
 			{% endcomment %}
 		</div>
+        {% endif %}
 	</div>
 
 	<div class="overflow-x-auto rounded-box bg-base-100 w-full">
@@ -132,7 +124,9 @@
 					<th>Name</th>
 					<th class="hidden md:table-cell">Email</th>
 					<th class="hidden md:table-cell">Contacts</th>
+                    {% if request.user|has_perm:"users.change_user" %}
 					<th></th>
+                    {% endif %}
 				</tr>
 			</thead>
 			<tbody>
@@ -163,12 +157,13 @@
 							<div class="text-sm">{{ user.profile.phone_2 }}</div>
 						</div>
 					</td>
+                    {% if request.user|has_perm:"users.change_user" %}
 					<th>
 						<div class="flex justify-end">
 							<button type="button" class="btn btn-ghost btn-xs" onclick="edit_modal_{{ user.pk }}.showModal()">Edit</button>
 							<dialog id="edit_modal_{{ user.pk }}" class="modal">
 								<div class="modal-box max-h-10/12">
-									<form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+									<form action="{% url 'company:users' %}?upk={{ user.pk }}" method="post" class="grid sm:grid-cols-2 gap-4">
 										{% csrf_token %}
                                         <input type="hidden" name="pk" value="{{ user.pk }}">
 										<fieldset class="fieldset">
@@ -223,12 +218,17 @@
 											<legend class="fieldset-legend">Other Phone</legend>
 											<input type="tel" class="input w-full" name="phone_2" value="{% if user.profile.phone_2 %}{{ user.profile.phone_2 }}{% endif %}" />
 										</fieldset>
+                                        {% comment %} admin access {% endcomment %}
 										<fieldset class="fieldset sm:col-span-2">
 											<label class="label">
-                                                <input name="is_company_admin" type="checkbox" {% if user.is_company_admin %}checked="checked"{% endif %} class="toggle" />
-                                                Admin Privilege
+                                                <input name="admin_access" type="checkbox" {% if user.profile.admin_access %}checked="checked"{% endif %} class="toggle" />
+                                                Admin Access
                                             </label>
+                                            <p class="text-xs opacity-60 font-thin">
+                                                Signifies if a user can access company dashboard 
+                                            </p>
 										</fieldset>
+                                        {% comment %} branches {% endcomment %}
 										<fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
                                             <legend class="fieldset-legend">Accessible branches</legend>
                                             <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
@@ -236,6 +236,19 @@
                                                 <label class="label">
                                                     <input type="checkbox" value="{{ branch.pk }}" class="checkbox"  name="accessible_branches" {% if branch in user.accessible_branches.all %}checked="checked"{% endif %} />
                                                     <span>{{ branch.name }}</span>
+                                                </label>
+                                                {% endfor %}
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="fieldset bg-base-100 border-base-300 rounded-box border p-4 sm:col-span-2">
+                                            <legend class="fieldset-legend">User Roles</legend>
+                                            <div class="grid sm:grid-cols-2 gap-y-2 gap-x-4">
+                                                {% for role in roles %}
+                                                <label class="label">
+                                                    <input type="checkbox" value="{{ role.pk }}" class="checkbox" 
+                                                    {% if role in user.c_groups.all %}checked="checked"{% endif %}
+                                                    name="user_roles" />
+                                                    <span>{{ role.description }}</span>
                                                 </label>
                                                 {% endfor %}
                                             </div>
@@ -253,17 +266,10 @@
 							</dialog>
 						</div>
 					</th>
+                    {% endif %}
 				</tr>
 				{% endfor %}
 			</tbody>
-			<tfoot>
-				<tr>
-					<th>Name</th>
-					<th class="hidden md:table-cell">Email</th>
-					<th class="hidden md:table-cell">Contacts</th>
-					<th></th>
-				</tr>
-			</tfoot>
 		</table>
 	</div>
 </c-layout>

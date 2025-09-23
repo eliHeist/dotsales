@@ -3,12 +3,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views import View
 
+from accounts.c_auth.mixins import AdminAccessRequiredMixin
+from accounts.c_auth.mixins import AdminAccessRequiredMixin
+from accounts.c_auth.models import CGroup
 from accounts.companies.models import Branch
 from accounts.users.models import UserProfile
 # Create your views here.
-class LandingPageView(LoginRequiredMixin, View):
+class BranchesPageView(LoginRequiredMixin, AdminAccessRequiredMixin, View):
     def get(self, request):
-        return render(request, 'company/landing.html', {})
+        return render(request, 'company/branches.html', {})
     
     def post(self, request, *args, **kwargs):
         data = request.POST
@@ -47,17 +50,27 @@ class LandingPageView(LoginRequiredMixin, View):
         return self.get(request, *args, **kwargs)
 
 
-class UsersListView(LoginRequiredMixin, View):
+class LandingPageView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        if user.profile.admin_access:
+            return render(request, 'company/branches.html', {})
+        return render(request, 'company/landing.html', {})
+
+
+class UsersListView(LoginRequiredMixin, AdminAccessRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user
         company = user.company
 
         users = company.users.all().prefetch_related("profile")
         error_message = kwargs.get("error_message", None)
+        roles = CGroup.objects.all()
 
         context = {
             "users": users,
-            "error_message": error_message
+            "error_message": error_message,
+            "roles": roles
         }
         
         return render(request, 'company/users.html', context)
@@ -66,6 +79,7 @@ class UsersListView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         user = request.user
         company = user.company
+        exp = ""
 
         data = request.POST
         pk = data.get("pk")
@@ -76,10 +90,13 @@ class UsersListView(LoginRequiredMixin, View):
         gender = data.get("gender")
         phone_1 = data.get("phone_1")
         phone_2 = data.get("phone_2")
-        is_company_admin = True if data.get("is_company_admin") == "on" else False
+        admin_access = True if data.get("admin_access") == "on" else False
         
         accessible_branches_list = data.getlist("accessible_branches")
         accessible_branches = company.branches.filter(pk__in=accessible_branches_list)
+
+        user_roles_list = data.getlist("user_roles")
+        user_roles = CGroup.objects.filter(pk__in=user_roles_list)
 
         email = data.get("email")
         username = data.get("username")
@@ -88,14 +105,10 @@ class UsersListView(LoginRequiredMixin, View):
             try: 
                 if pk:
                     user = company.users.get(pk=pk)
-                    
-
-                    if not is_company_admin and user.is_company_admin and company.users.filter(is_company_admin=True).count() < 2:
-                        is_company_admin = True
 
                     user.email = email
-                    user.username = username
-                    user.is_company_admin=is_company_admin
+                    if username:
+                        user.username = username
                     user.save()
 
                     user.profile.first_name = first_name
@@ -104,6 +117,7 @@ class UsersListView(LoginRequiredMixin, View):
                     user.profile.gender = gender
                     user.profile.phone_1 = phone_1
                     user.profile.phone_2 = phone_2
+                    user.profile.admin_access = admin_access
                     user.profile.save()
                 else:
                     # generate a random password
@@ -113,7 +127,6 @@ class UsersListView(LoginRequiredMixin, View):
                         email=email,
                         password=password,
                         username=username,
-                        is_company_admin=is_company_admin,
                         company=company
                     )
                     UserProfile.objects.create(
@@ -123,17 +136,20 @@ class UsersListView(LoginRequiredMixin, View):
                         last_name=last_name,
                         gender=gender,
                         phone_1=phone_1,
-                        phone_2=phone_2
+                        phone_2=phone_2,
+                        admin_access=admin_access
                     )
                 
                 user.accessible_branches.set(accessible_branches)
+                user.c_groups.set(user_roles)
             except Exception as e:
-                print(e)
+                exp = str(e)
+                print(exp)
         
-        return self.get(request, error_message=str(e), *args, **kwargs)
+        return self.get(request, error_message=str(exp), *args, **kwargs)
 
 
-class ProductListView(LoginRequiredMixin, View):
+class ProductListView(LoginRequiredMixin, AdminAccessRequiredMixin, View):
     def get(self, request):
         user = request.user
         company = user.company

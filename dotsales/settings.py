@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'ninja_extra',
     'ninja_jwt',
+    'ninja_jwt.token_blacklist',
     "corsheaders",
 
     "django_unicorn",
@@ -124,6 +125,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'accounts.c_auth.auth_backends.CPermissionBackend',
 ]
 
 
@@ -215,6 +221,7 @@ NINJA_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "BLACKLIST_AFTER_ROTATION": True,
     "ROTATE_REFRESH_TOKENS": True,
+    "SIGNING_KEY": env("JWT_SIGNING_KEY"),
 }
 
 LOGGING = {

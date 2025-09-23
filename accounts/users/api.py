@@ -1,85 +1,83 @@
 # people/api.py
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate, get_user_model
 from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model
 
-from ninja.responses import Response
-
-from ninja_jwt.authentication import JWTAuth
+from django.http import HttpResponse
 from ninja_jwt.tokens import RefreshToken
+from ninja_jwt.exceptions import TokenError
 
 from ninja_extra import api_controller, http_post, http_get, http_put
-from ninja_extra.permissions import IsAuthenticated
 
 # from .models import Branch
-from .schemas import LoginResponseSchema, LoginSchema, UserOutAuthedSchema
+from .schemas import TokenObtainPairIn, TokenObtainPairOut, TokenRefreshIn
 
 User = get_user_model()
 
 
 @api_controller("/auth", tags=["Auth & Users"])
 class AuthController:
-    # @http_get("/me", response=UserOutSchema, auth=JWTAuth())
-    # def me(self, request):
-    #     user = request.user
-    #     return user
-    
-    @http_post("/login", response={200: LoginResponseSchema, 401: dict, 403: dict})
-    def login(self, request, data: LoginSchema):
+    @http_post("/token/pair",
+        response={200: TokenObtainPairOut, 401: str},
+        auth=None,
+        url_name="login",
+    )
+    def obtain_token(self, request, payload: TokenObtainPairIn):
         """
-        Login. Returns access token and user profile.
-        Refresh token is set in an httpOnly cookie.
+        Authenticates user, sets HttpOnly cookie for refresh token,
+        and returns access token.
         """
-        user = authenticate(request, email=data.email, password=data.password)
-        if not user:
-            return {"detail": "Invalid credentials"}, 401
-        if not user.is_active:
-            return {"detail": "User inactive"}, 403
+        user = authenticate(email=payload.email, password=payload.password)
 
-        print("Authenticated", user)
+        if user is None:
+            return 401, "Invalid credentials"
 
         refresh = RefreshToken.for_user(user)
-        access = str(refresh.access_token)
-        refresh_str = str(refresh)
+        # Return the access token in the response body
+        return 200, {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }
 
-        payload = {"access": access, "user": UserOutAuthedSchema.from_orm(user).dict()}
-
-        # cookie lifetime from settings.NINJA_JWT if present
-        max_age = None
-        if lif := settings.NINJA_JWT.get("REFRESH_TOKEN_LIFETIME"):
-            max_age = int(lif.total_seconds())
-
-        resp = Response(payload)
-        resp.set_cookie(
-            "refresh_token",
-            refresh_str,
-            httponly=True,
-            secure=not settings.DEBUG,
-            samesite="Lax",
-            max_age=max_age,
-            path="/auth/refresh/",
-        )
-        return resp
-    
-    @http_post("/refresh", response={200: dict, 401: dict})
-    def refresh(self, request, data: LoginSchema):
+    # Refresh token endpoint
+    @http_post(
+        "/token/refresh",
+        response={200: TokenObtainPairOut, 401: str},
+        auth=None,
+        url_name="token_refresh",
+    )
+    def refresh_token(self, request, payload: TokenRefreshIn):
         """
-        Read refresh token from cookie first.
-        Return a new access token and user profile.
+        Takes a refresh token from an HttpOnly cookie and returns a
+        new access token. Also rotates the refresh token.
         """
-        token = request.COOKIES.get("refresh_token")
-        if not token:
-            return Response({"detail": "No refresh token"}, status=401)
-
         try:
-            refresh = RefreshToken(token)
-            access = str(refresh.access_token)
-            # token payload usually has 'user_id'
-            user_id = refresh.get("user_id") or refresh["user_id"]
-            user = User.objects.get(id=user_id)
-        except Exception:
-            return Response({"detail": "Invalid refresh token"}, status=401)
+            refresh = RefreshToken(payload.refresh)
+            # Blacklist the old refresh token
+            if settings.NINJA_JWT["ROTATE_REFRESH_TOKENS"] and settings.NINJA_JWT["BLACKLIST_AFTER_ROTATION"]:
+                refresh.blacklist()
 
-        return {"access": access, "user": UserOutAuthedSchema.from_orm(user).dict()}
+            # Generate new tokens
+            new_refresh = RefreshToken.for_user(refresh.access_token.get("user_id"))
+            new_access = str(new_refresh.access_token)
 
+            return 200, {
+                "access": new_access,
+                "refresh": str(new_refresh),
+            }
 
+        except Exception as e:
+            return 401, str(e)
+
+    # Logout endpoint
+    @http_post("/token/blacklist", auth=None, url_name="logout")
+    def logout(self, request, payload: TokenRefreshIn):
+        """
+        Logs out a user by blacklisting their refresh token and clearing
+        the HttpOnly cookie.
+        """
+
+        refresh = RefreshToken(payload.refresh)
+        refresh.blacklist()
+
+        return 200, {"message": "Token Blacklisted"}
+    

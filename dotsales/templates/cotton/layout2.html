@@ -1,4 +1,4 @@
-{% load static %}
+{% load static mytags %}
 
 <c-base title="{{ title }}">
 	<div
@@ -21,6 +21,13 @@
                     this.error = result;
                     setTimeout(() => this.error = '', 5000);
                 }
+            },
+            init(){
+                document.querySelectorAll('.link-group').forEach((el) => {
+                    if (el.querySelectorAll('li').length === 0) {
+                        el.remove();
+                    }
+                })
             }
         }">
 		<div class="">
@@ -52,31 +59,50 @@
                     <div class="p-4 w-full">
                         <div class="flex items-center gap-2">
                             <div
-                                class="aspect-square w-8 rounded-box bg-primary grid place-content-center font-semibold text-primary-content">
+                                class="aspect-square w-8 rounded-box bg-neutral grid place-content-center font-semibold text-neutral-content">
                                 B
                             </div>
                             <div class="text-xs">
-                                <h2 class="font-semibold">{{ company.name }}</h2>
-                                <p>{{ branch.name }}</p>
+                                <a {% if user.profile.admin_access %}href="{% url 'company:branches' %}" class="link"{% endif %}>
+                                    <h2>{{ company.name }}</h2>
+                                </a>
+                                <p class="font-semibold">{{ branch.name }}</p>
                             </div>
                         </div>
                     </div>
     
                     <!-- Scrollable Content -->
                     <div class="flex-1 overflow-y-auto py-2 space-y-4">
-                        <div>
+                        <div class="link-group">
                             {% comment %} <h2 class="text-xs font-medium opacity-60 uppercase px-4">Landing</h2> {% endcomment %}
                             <ul class="menu w-full">
                                 <li><a href="{% url 'branches:landing' branch.id %}">Landing</a></li>
                             </ul>
                         </div>
-                        <div>
+                        <div class="link-group">
                             <h2 class="text-xs font-medium opacity-60 uppercase px-4">
                                 Inventory
                             </h2>
                             <ul class="menu w-full">
-                                <li><a href="{% url 'branches:sales' branch.id %}">Sales</a></li>
+                                {% if request.user|has_perm:"products.view_branchproduct" %}
                                 <li><a href="{% url 'branches:products' branch.id %}">Products</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="link-group">
+                            <h2 class="text-xs font-medium opacity-60 uppercase px-4">
+                                Sales
+                            </h2>
+                            <ul class="menu w-full">
+                                {% if request.user|has_perm:"sales.view_sale" %}
+                                <li><a href="{% url 'branches:sales' branch.id %}">Landing</a></li>
+                                {% endif %}
+                                {% if request.user|has_perm:"sales.add_sale" %}
+                                <li><a href="{% url 'branches:sales_form' %}">POS</a></li>
+                                {% endif %}
+                                {% if request.user|has_perm:"sales.analyze_profit" %}
+                                <li><a href="{% url 'branches:sales_analytics' branch.id %}">Analytics</a></li>
+                                {% endif %}
                             </ul>
                         </div>
                     </div>

@@ -8,7 +8,7 @@
 			{% comment %} <div class="stat-desc">21% more than last month</div> {% endcomment %}
 		</div>
         <div class="stat">
-			<div class="stat-title uppercase font-semibold">{{ today|date }} Cash In</div>
+			<div class="stat-title uppercase font-semibold">Cash In TODAY</div>
 			<div class="stat-value text-secondary">{{ day_total|add_commas }}</div>
 			<div class="stat-desc font-semibold text-error">- {{ day_debt|add_commas }} balances</div>
 			<div class="stat-figure">
@@ -32,16 +32,18 @@
 			</div>
 		</div>
 	</div>
-
-    <div class="action-bar p-2 bg-base-100 rounded-box mb-4 flex justify-between">
+    
+    {% if request.user|has_perm:"sales.add_sale" %}
+    <div class="action-bar p-0 overflow-hidden outline rounded-full mb-4 flex justify-between">
         <div></div>
         <div>
-            <a class="btn btn-primary" title="Create a sale" href="{% url 'branches:sales_form' branch.pk %}">
-                <span class="text-xl">&#43;</span>
+            <a class="btn btn-neutral" title="Create a sale" href="{% url 'branches:sales_form' branch.pk %}">
                 <span>Create a sale</span>
+                <i class='bx  bx-arrow-right-stroke'  ></i> 
             </a>
         </div>
     </div>
+    {% endif %}
 
 	<div class="overflow-x-auto rounded-box bg-base-100">
 		<table class="table">
@@ -52,7 +54,9 @@
 					<th class="text-right hidden md:table-cell">Amount Paid</th>
 					<th class="text-right hidden md:table-cell">Balance</th>
 					<th class="text-right md:hidden">Amounts</th>
+                    {% if request.user|has_perm:"sales.change_sale" %}
 					<th></th>
+                    {% endif %}
 				</tr>
 			</thead>
 			<tbody>
@@ -104,13 +108,17 @@
                         <div class="text-success">{{ sale.amount_paid|add_commas }}</div>
                         <div class="text-error">{{ sale.balance|add_commas }}</div>
                     </td>
+                    {% if request.user|has_perm:"sales.change_sale" %}
 					<td class="flex justify-end">
 						<a
 							href="{% url 'branches:sales_form_update' branch.pk sale.pk %}"
-							class="btn btn-neutral btn-xs"
-							>View</a
+							class="btn btn-ghost btn-sm text-lg"
+							>
+                            <i class='bx  bx-edit'  ></i> 
+                            </a
 						>
 					</td>
+                    {% endif %}
 				</tr>
 				{% endfor %}
 			</tbody>

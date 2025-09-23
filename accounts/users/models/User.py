@@ -70,6 +70,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    c_groups = models.ManyToManyField("c_auth.CGroup", blank=True)
+
     company = models.ForeignKey("companies.Company", on_delete=models.CASCADE, related_name="users", null=True, blank=True)
     accessible_branches = models.ManyToManyField("companies.Branch", blank=True, related_name="users_with_access")
 
@@ -98,3 +100,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def get_full_name(self):
         return self.profile.get_full_name() if self.profile else self.email
+    
+    def has_cperm(self, perm, obj=None):
+        # Skip inactive users
+        if not self.is_active:
+            return False
+
+        return True if self.is_company_admin else self.check_cperm(perm, obj)
+    
+    def check_cperm(self, perm, obj=None):
+        # check in custom groups
+        if perm in self.get_cgroup_permissions(self, obj):
+            return True
+        return False
+    
+    def get_cgroup_permissions(self, user_obj, obj=None):
+        for group in user_obj.c_groups.all():
+            for perm in group.permissions.all():
+                yield f"{perm.content_type.app_label}.{perm.codename}"

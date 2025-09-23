@@ -1,39 +1,16 @@
+{% load mytags %}
+
 <c-layout>
 	<div class="stats stats-vertical md:stats-horizontal w-full bg-base-100 shadow mb-4">
 		<div class="stat">
-			<div class="stat-figure text-primary">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					class="inline-block h-8 w-8 stroke-current">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-				</svg>
-			</div>
 			<div class="stat-title">Total Products</div>
 			<div class="stat-value text-primary">{{ products.count }}</div>
 			{% comment %}
 			<div class="stat-desc">21% more than last month</div>
 			{% endcomment %}
 		</div>
+        {% if request.user|has_perm:"products.add_product" %}
 		<div class="stat">
-			<div class="stat-figure text-primary">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					class="inline-block h-8 w-8 stroke-current">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-				</svg>
-			</div>
 			<div class="stat-title">Product Actions</div>
 			<div class="mt-auto">
                 <button type="button" class="btn btn-" onclick="edit_modal.showModal()">Add Product</button>
@@ -91,6 +68,7 @@
 			<div class="stat-desc">21% more than last month</div>
 			{% endcomment %}
 		</div>
+        {% endif %}
 	</div>
 
 	<div class="overflow-x-auto rounded-box bg-base-100">
@@ -100,7 +78,9 @@
 					<th>Name</th>
 					<th>Code</th>
 					<th class="text-right">Unit Price</th>
+                    {% if request.user|has_perm:"products.change_product" %}
 					<th></th>
+                    {% endif %}
 				</tr>
 			</thead>
 			<tbody>
@@ -117,6 +97,7 @@
 					<td class="text-right">
 						{{ product.unit_price }}
 					</td>
+                    {% if request.user|has_perm:"products.change_product" %}
 					<td>
 						<div class="flex justify-end">
 							<button type="button" class="btn btn-ghost btn-xs" onclick="edit_modal_{{ product.pk }}.showModal()">Edit</button>
@@ -177,6 +158,7 @@
 							</dialog>
 						</div>
 					</td>
+                    {% endif %}
 				</tr>
 				{% endfor %}
 			</tbody>

@@ -1,6 +1,8 @@
 from django.urls import path, include
 
 app_configs = [
+	{ 'app_name': 'accounts.c_auth', 'url': 'accounts/c_auth/', 'namespace': 'c_auth' },
+
 	{ 'app_name': 'app.branches', 'url': 'branches/', 'namespace': 'branches' },
 
 	{ 'app_name': 'app.company', 'url': '', 'namespace': 'company' },
