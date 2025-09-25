@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.views import View
 
 from accounts.c_auth.mixins import AdminAccessRequiredMixin
@@ -53,8 +54,8 @@ class BranchesPageView(LoginRequiredMixin, AdminAccessRequiredMixin, View):
 class LandingPageView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
-        if user.profile.admin_access:
-            return render(request, 'company/branches.html', {})
+        if user.is_company_admin or user.profile.admin_access:
+            return redirect(reverse_lazy("company:branches"))
         return render(request, 'company/landing.html', {})
 
 
