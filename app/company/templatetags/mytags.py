@@ -29,4 +29,6 @@ def get_num_by_page(counter, page_number, page_size=20):
 
 @register.filter
 def has_perm(user, perm_name):
+    if not user or not user.is_authenticated:
+        return False
     return user.has_cperm(perm_name)

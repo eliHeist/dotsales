@@ -28,8 +28,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # CORS: Requires django-cors-headers
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
-
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies to be sent
 
 # Application definition
 
@@ -171,10 +170,7 @@ LOGIN_REDIRECT_URL = "company:landing"
 LOGOUT_REDIRECT_URL = 'users:login'
 
 # Email settings
-if env('USE_RESEND'):
-    EMAIL_BACKEND = 'dotsales.email_backends.ResendEmailBackend'
-else:
-    EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_BACKEND = 'dotsales.email_backends.ResendEmailBackend' if env('USE_RESEND') else env('EMAIL_BACKEND')
 
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
@@ -217,31 +213,36 @@ if not DEBUG and USE_AZURE:
 from datetime import timedelta
 
 NINJA_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "BLACKLIST_AFTER_ROTATION": True,
-    "ROTATE_REFRESH_TOKENS": True,
     "SIGNING_KEY": env("JWT_SIGNING_KEY"),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'JWT_AUTH_COOKIE': 'refresh_token',  # Cookie name
+    'JWT_AUTH_COOKIE_HTTP_ONLY': True,
+    'JWT_AUTH_COOKIE_SECURE': True,  # Use False for local dev (HTTP)
+    'JWT_AUTH_COOKIE_SAMESITE': 'Strict',
+    'JWT_AUTH_COOKIE_PATH': '/',
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-        'mail_admins': {
-            'class': 'django.utils.log.AdminEmailHandler',
-            'level': 'ERROR',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#         'mail_admins': {
+#             'class': 'django.utils.log.AdminEmailHandler',
+#             'level': 'ERROR',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'ERROR',
+#             'propagate': True,
+#         },
+#     },
+# }
 

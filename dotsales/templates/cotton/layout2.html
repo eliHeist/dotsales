@@ -98,7 +98,7 @@
                                 <li><a href="{% url 'branches:sales' branch.id %}">Landing</a></li>
                                 {% endif %}
                                 {% if request.user|has_perm:"sales.add_sale" %}
-                                <li><a href="{% url 'branches:sales_form' %}">POS</a></li>
+                                <li><a href="{% url 'branches:sales_form' branch.id %}">POS</a></li>
                                 {% endif %}
                                 {% if request.user|has_perm:"sales.analyze_profit" %}
                                 <li><a href="{% url 'branches:sales_analytics' branch.id %}">Analytics</a></li>
