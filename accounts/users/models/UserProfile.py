@@ -22,6 +22,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Profile of {self.user.email}"
     
-    get_full_name = lambda self: f"{self.last_name} {self.first_name} {self.middle_name}"
+    get_full_name = lambda self: f"{self.last_name or ''} {self.first_name or ''} {self.middle_name or ''}".strip()
 
     get_initials = lambda self: f"{self.last_name[0]}{self.first_name[0]}"
