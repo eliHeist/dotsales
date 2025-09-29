@@ -113,7 +113,7 @@
                             <div class="dropdown dropdown-top w-full">
                                 <button
                                     class="w-full bg-base-200 hover:bg-base-300 p-4 rounded-box transition-all cursor-pointer">
-                                    <div class="flex items-center space-x-2">
+                                    <div class="grid grid-flow-col items-center space-x-2">
                                         <div class="avatar avatar-placeholder">
                                             <div
                                                 class="bg-secondary text-secondary-content w-8 rounded-full grid place-content-center">
@@ -123,7 +123,7 @@
                                             </div>
                                         </div>
     
-                                        <div class="grid flex-1">
+                                        <div class="grid text-left overflow-hidden">
                                             <h2 class="font-semibold text-xs">
                                                 {{ request.user.profile.get_full_name }}
                                             </h2>
