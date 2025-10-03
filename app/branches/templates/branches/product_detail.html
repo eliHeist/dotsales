@@ -1,13 +1,13 @@
 {% load mytags %}
 
 <c-layout2>
-    <h1 class="text-2xl font-semibold mb-4">{{ product.name }}</h1>
+	<h1 class="text-2xl font-semibold mb-4">{{ product.name }}</h1>
 	<div class="stats stats-vertical md:stats-horizontal w-full shadow bg-base-100 mb-4">
 		<div class="stat">
 			<div class="stat-title uppercase font-semibold">Selling Price AVG</div>
 			<div class="stat-value text-secondary">{{ average_price|add_commas }}</div>
 			<div class="stat-desc">Over {{ total_balance }} units</div>
-            <div class="stat-figure text-secondary font-bold text-2xl">
+			<div class="stat-figure text-secondary font-bold text-2xl">
 				<span>/=</span>
 			</div>
 		</div>
@@ -20,169 +20,160 @@
 			<div class="stat-title uppercase font-semibold">Stock Worth</div>
 			<div class="stat-value text-secondary">{{ balance_worth|add_commas }}</div>
 			<div class="stat-desc">Over {{ stock_batches_count }} batches</div>
-            <div class="stat-figure text-secondary font-bold text-2xl">
+			<div class="stat-figure text-secondary font-bold text-2xl">
 				<span>/=</span>
 			</div>
 		</div>
 	</div>
 
-    <div class="action-bar p-0 overflow-hidden outline rounded-full mb-4 flex justify-between">
-        <div></div>
-        <div>
-            <button class="btn btn-neutral" title="Add Stock" onclick="qty_modal.showModal()">
-                <i class='bx  bx-plus'  ></i> 
-                <span>Re-stock</span>
-            </button>
-        </div>
-    </div>
-    <dialog id="qty_modal" class="modal">
-        <div class="modal-box max-h-10/12">
-            <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
-                <input type="hidden" name="action" value="restock" />
-                {% csrf_token %}
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Date *</legend>
-                    <input type="date" class="input w-full" name="date" required />
-                </fieldset>
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Quantity *</legend>
-                    <input
-                        type="number"
-                        class="input w-full"
-                        name="quantity"
-                        required />
-                </fieldset>
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Cost *</legend>
-                    <input
-                        type="number"
-                        class="input w-full"
-                        name="cost"
-                        required />
-                    <p class="label">Cost of stock</p>
-                </fieldset>
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Selling Price *</legend>
-                    <input
-                        type="number"
-                        class="input w-full"
-                        name="selling_price"
-                        required />
-                    <p class="label">Amount to sale each product</p>
-                </fieldset>
-
-                <div class="modal-action sm:col-span-2">
-                    <button class="btn btn-primary">Restock</button>
-                </div>
-            </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
-
-    {% if request.user|has_perm:"stock.view_stockbatch" %}
-	<ul class="list bg-base-100 rounded-box shadow-md">
-		<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Previous Stock ins</li>
-
-		{% for batch in stock_batches %}
-		<li class="list-row">
-            <div class="text-3xl font-thin opacity-30 tabular-nums">
-                {{ batch.pk }}
-            </div>
-			<div class="list-col-grow">
-				<div class="flex gap-2 items-center font-semibold">
-                    {{ batch.date }}
-                    <span class="text-xs opacity-60 md:hidden">{{ batch.get_cost|add_commas }}</span>
-                </div>
-				<div class="text-xs uppercase font-semibold opacity-60 hidden md:block">{{ batch.get_cost|add_commas }}</div>
-                <div class="text-xs md:hidden mt-2">
-                    <div class="flex gap-8">
-                        <div class="flex items-center gap-1 flex-row-reverse">
-                            <div class="font-semibold">{{ batch.get_balance.normalize }} / {{ batch.quantity.normalize }}</div>
-                            <div class="uppercase font-semibold opacity-60">QTY</div>
-                        </div>
-                        <div class="flex items-center gap-1 flex-row-reverse">
-                            <div class="font-semibold">{{ batch.get_selling_price|add_commas }}</div>
-                            <div class="text-xs uppercase font-semibold opacity-60">PRICE</div>
-                        </div>
-                    </div>
-                </div>
-			</div>
-			<div class="text-right hidden md:block">
-				<div class="font-semibold">{{ batch.get_balance.normalize }}</div>
-				<div class="text-xs uppercase font-semibold opacity-60">BAL</div>
-			</div>
-			<div class="text-right hidden md:block">
-				<div class="font-semibold">{{ batch.quantity.normalize }}</div>
-				<div class="text-xs uppercase font-semibold opacity-60">QTY</div>
-			</div>
-			<div class="text-right hidden md:block">
-				<div class="font-semibold">{{ batch.get_selling_price|add_commas }}</div>
-				<div class="text-xs uppercase font-semibold opacity-60">SELLING</div>
-			</div>
-			<div class="text-right hidden md:block">
-				<div class="font-semibold">{{ batch.get_worth|add_commas }}</div>
-				<div class="text-xs uppercase font-semibold opacity-60">WORTH</div>
-			</div>
-            {% comment %} {% if self.get_balance == 0 %}
-			<button class="btn btn-square btn-ghost">
-				<span class="material-symbols-outlined">edit</span>
+	{% if request.user|has_perm:"stock.add_stockbatch" %}
+	<div class="action-bar p-0 overflow-hidden outline rounded-full mb-4 flex justify-between">
+		<div></div>
+		<div>
+			<button class="btn btn-neutral" title="Add Stock" onclick="qty_modal.showModal()">
+				<i class="bx bx-plus"></i>
+				<span>Re-stock</span>
 			</button>
-            {% endif %} {% endcomment %}
-            {% if request.user|has_perm:"stock.add_stockbatch" %}
-			<button class="btn btn-sm text-lg btn-square btn-ghost" onclick="qty_modal_{{ batch.pk }}.showModal()" title="Edit Stock">
-				<i class='bx  bx-edit'  ></i> 
-			</button>
-            {% endif %}
-		</li>
-        {% if request.user|has_perm:"stock.add_stockbatch" %}
-        <dialog id="qty_modal_{{ batch.pk }}" class="modal">
-            <div class="modal-box max-h-10/12">
-                <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
-                    <input type="hidden" name="action" value="update_stock" />
-                    <input type="hidden" name="pk" value="{{ batch.pk }}" />
-                    {% csrf_token %}
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Date *</legend>
-                        <input type="date" class="input w-full" name="date" value="{{ batch.date|date:'Y-m-d' }}" required />
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Quantity *</legend>
-                        <input type="number" class="input w-full" name="quantity" value="{{ batch.quantity.normalize }}" required />
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Cost *</legend>
-                        <input
-                            type="number"
-                            class="input w-full"
-                            name="cost"
-                            value="{{ batch.cost.normalize }}"
-                            required />
-                        <p class="label">Cost of stock</p>
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Selling Price *</legend>
-                        <input
-                            type="number"
-                            class="input w-full"
-                            name="selling_price"
-                            value="{{ batch.selling_price.normalize }}"
-                            required />
-                        <p class="label">Amount to sale each product</p>
-                    </fieldset>
+		</div>
+	</div>
+	<dialog id="qty_modal" class="modal">
+		<div class="modal-box max-h-10/12">
+			<form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+				<input type="hidden" name="action" value="restock" />
+				{% csrf_token %}
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Date *</legend>
+					<input type="date" class="input w-full" name="date" required />
+				</fieldset>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Quantity *</legend>
+					<input type="number" class="input w-full" name="quantity" required />
+				</fieldset>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Cost *</legend>
+					<input type="number" class="input w-full" name="cost" required />
+					<p class="label">Cost of stock</p>
+				</fieldset>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Selling Price *</legend>
+					<input type="number" class="input w-full" name="selling_price" required />
+					<p class="label">Amount to sale each product</p>
+				</fieldset>
 
-                    <div class="modal-action sm:col-span-2">
-                        <button class="btn btn-primary">Update</button>
-                    </div>
-                </form>
-            </div>
-            <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-            </form>
-        </dialog>
-        {% endif %}
-		{% endfor %}
-	</ul>
-    {% endif %}
+				<div class="modal-action sm:col-span-2">
+					<button class="btn btn-primary">Restock</button>
+				</div>
+			</form>
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>close</button>
+		</form>
+	</dialog>
+	{% endif %} {% if request.user|has_perm:"stock.view_stockbatch" %}
+	<div class="overflow-x-auto bg-base-100 rounded-box">
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Date</th>
+					<th>Balance</th>
+					<th class="text-right whitespace-nowrap">Unit Price</th>
+                    {% if request.user|has_perm:"sales.analyze_profit" %}
+					<th class="text-right whitespace-nowrap">Cost</th>
+                    {% endif %}
+					<th class="text-right whitespace-nowrap">Worth</th>
+                    {% if request.user|has_perm:"stock.add_stockbatch" %}
+					<th></th>
+                    {% endif %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for batch in stock_batches %}
+				<tr>
+					<th>{{ batch.pk }}</th>
+					<td>{{ batch.date }}</td>
+					<td>
+						<span class="font-semibold">{{ batch.get_balance.normalize }}</span> / {{
+						batch.quantity.normalize }}
+					</td>
+					<td class="text-right whitespace-nowrap">{{ batch.get_selling_price|add_commas }}</td>
+                    
+                    {% if request.user|has_perm:"sales.analyze_profit" %}
+					<td class="text-right whitespace-nowrap">{{ batch.get_cost|add_commas }}</td>
+                    {% endif %}
+                    
+					<td class="text-right whitespace-nowrap">{{ batch.get_worth|add_commas }}</td>
+                    {% if request.user|has_perm:"stock.add_stockbatch" %}
+					<td>
+                        <div class="flex justify-end">
+                            <button
+                                class="btn btn-sm text-lg btn-square btn-ghost"
+                                onclick="qty_modal_{{ batch.pk }}.showModal()"
+                                title="Edit Stock">
+                                <i class="bx bx-edit"></i>
+                            </button>
+                            <dialog id="qty_modal_{{ batch.pk }}" class="modal">
+                                <div class="modal-box max-h-10/12">
+                                    <form action="" method="post" class="grid sm:grid-cols-2 gap-4">
+                                        <input type="hidden" name="action" value="update_stock" />
+                                        <input type="hidden" name="pk" value="{{ batch.pk }}" />
+                                        {% csrf_token %}
+                                        <fieldset class="fieldset">
+                                            <legend class="fieldset-legend">Date *</legend>
+                                            <input
+                                                type="date"
+                                                class="input w-full"
+                                                name="date"
+                                                value="{{ batch.date|date:'Y-m-d' }}"
+                                                required />
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="fieldset-legend">Quantity *</legend>
+                                            <input
+                                                type="number"
+                                                class="input w-full"
+                                                name="quantity"
+                                                value="{{ batch.quantity.normalize }}"
+                                                required />
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="fieldset-legend">Cost *</legend>
+                                            <input
+                                                type="number"
+                                                class="input w-full"
+                                                name="cost"
+                                                value="{{ batch.cost.normalize }}"
+                                                required />
+                                            <p class="label">Cost of stock</p>
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="fieldset-legend">Selling Price *</legend>
+                                            <input
+                                                type="number"
+                                                class="input w-full"
+                                                name="selling_price"
+                                                value="{{ batch.selling_price.normalize }}"
+                                                required />
+                                            <p class="label">Amount to sale each product</p>
+                                        </fieldset>
+    
+                                        <div class="modal-action sm:col-span-2">
+                                            <button class="btn btn-primary">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <form method="dialog" class="modal-backdrop">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
+                        </div>
+					</td>
+                    {% endif %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% endif %}
 </c-layout2>

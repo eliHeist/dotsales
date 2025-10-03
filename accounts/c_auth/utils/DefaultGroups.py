@@ -22,6 +22,14 @@ groups = [
                 "code": "payments.change_payment",
                 "description": "Updating payment details (like the date and price)"
             },
+            {
+                "code": "products.view_branchproduct",
+                "description": "View products"
+            },
+            {
+                "code": "stock.view_stockbatch",
+                "description": "View stock details"
+            },
         ]
     },
     {
