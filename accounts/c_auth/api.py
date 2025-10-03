@@ -127,8 +127,5 @@ class AuthController:
         """
         Returns the details of the authenticated user.
         """
-        print(request)
-        print(request.auth)
-        print(request.user)
         user = request.auth
         return 200, user
